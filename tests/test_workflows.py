@@ -150,18 +150,73 @@ class TestWorkflow(TestCase):
         self.workflow.add_tool_input(
             tool_id=tool_3.id, input_ids=[tool_1.id, tool_2.id]
         )
-        self.assertEqual(len(tool_3.inputs), 2)
+        self.assertEqual(tool_3.number_of_inputs, 2)
 
-        self.workflow.add_tool_input(
-            tool_id=tool_3.id, input_ids=tool_4.id
-        )
-        self.assertEqual(len(tool_3.inputs), 3)
+        self.workflow.add_tool_input(tool_id=tool_3.id, input_ids=tool_4.id)
+        self.assertEqual(tool_3.number_of_inputs, 3)
 
     def test_adding_improper_input(self) -> None:
-        ...
+        tool_1 = self.workflow.insert_tool("input")
+        tool_2 = self.workflow.insert_tool("input")
+        tool_3 = self.workflow.insert_tool("large_generic")
+
+        self.assertRaises(
+            workflow_exceptions.ToolDoesNotExist,
+            self.workflow.add_tool_input,
+            tool_id=42,
+            input_ids=[tool_1.id, tool_2.id],
+        )
+
+        self.assertRaises(
+            workflow_exceptions.ToolDoesNotExist,
+            self.workflow.add_tool_input,
+            tool_id=tool_3.id,
+            input_ids=[tool_1.id, 42],
+        )
+        self.assertEqual(tool_3.number_of_inputs, 0)
 
     def test_removing_proper_input(self) -> None:
-        ...
+        tool_1 = self.workflow.insert_tool("input")
+        tool_2 = self.workflow.insert_tool("input")
+        tool_3 = self.workflow.insert_tool("large_generic")
+        tool_4 = self.workflow.insert_tool("generic")
+
+        self.workflow.add_tool_input(
+            tool_id=tool_3.id, input_ids=[tool_1.id, tool_2.id, tool_4.id]
+        )
+        self.workflow.add_tool_input(tool_id=tool_4.id, input_ids=[tool_2.id])
+
+        self.workflow.remove_tool_input(
+            tool_id=tool_3.id, input_ids=[tool_1.id, tool_4.id]
+        )
+        self.assertEqual(tool_3.number_of_inputs, 1)
+        self.assertEqual(set(tool_3.inputs) & {tool_1.id, tool_4.id}, set())
+
+        self.workflow.remove_tool_input(tool_id=tool_4.id, input_ids=tool_2.id)
+        self.assertEqual(tool_4.number_of_inputs, 0)
+        self.assertEqual(set(tool_4.inputs), set())
 
     def test_removing_improper_input(self) -> None:
-        ...
+        tool_1 = self.workflow.insert_tool("input")
+        tool_2 = self.workflow.insert_tool("input")
+        tool_3 = self.workflow.insert_tool("large_generic")
+        tool_4 = self.workflow.insert_tool("generic")
+
+        self.workflow.add_tool_input(
+            tool_id=tool_3.id, input_ids=[tool_1.id, tool_2.id]
+        )
+        self.workflow.add_tool_input(tool_id=tool_4.id, input_ids=[tool_2.id])
+
+        self.assertRaises(
+            workflow_exceptions.ToolDoesNotExist,
+            self.workflow.remove_tool_input,
+            tool_id=42,
+            input_ids=[tool_1.id, tool_4.id],
+        )
+
+        self.assertRaises(
+            tool_exceptions.InputDoesNotExist,
+            self.workflow.remove_tool_input,
+            tool_id=tool_3.id,
+            input_ids=[tool_2.id, tool_4.id],
+        )
