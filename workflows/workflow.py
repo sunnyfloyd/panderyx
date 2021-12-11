@@ -21,6 +21,7 @@ class Workflow:
         tool_choice: str,
         input_ids: Optional[Union[list[int], int]] = None,
         output_ids: Optional[Union[list[int], int]] = None,
+        coordinates: Optional[tuple[int, int]] = None,
     ) -> int:
         try:
             tool_class = self.TOOL_CHOICES[tool_choice]
@@ -42,6 +43,9 @@ class Workflow:
         self._tools[next_id] = tool
         self._add_tool_id(next_id)
 
+        if coordinates is not None:
+            self.set_tool_coordinates(coordinates)
+
         return tool
 
     def remove_tool(self, tool_ids: Union[list[int], int]) -> None:
@@ -50,10 +54,12 @@ class Workflow:
         for tool_id in tool_ids:
             if self._tools[tool_id].is_root:
                 raise workflow_exceptions.RootCannotBeDeleted
+
             # remove tool from linked tools' inputs
             tool_outputs = self._tools[tool_id].outputs
             for output_id in tool_outputs:
                 self._tools[output_id].remove_input(output_id)
+
             # remove tool from linked tools' outputs
             tool_inputs = self._tools[tool_id].inputs
             for input_id in tool_inputs:
@@ -80,11 +86,25 @@ class Workflow:
     def edit_tool_config(self, tool_id: int, config: dict) -> None:
         NotImplementedError
 
+    def set_tool_coordinates(
+        self, tool_id: int, coordinates: Optional[tuple[int, int]] = None
+    ) -> None:
+        # I need to decide where to fit a check if coordinates will fit canvas
+        tool = self._get_tool_by_id(tool_id)
+        coordinates = (
+            coordinates if coordinates is not None else self._get_default_coordinates()
+        )
+        tool.coordinates = coordinates
+
+    def _get_default_coordinates(self) -> tuple[int, int]:
+        # might require more sophisticated logic in the future
+        return (0, 0)
+
     def _get_tool_by_id(self, tool_id: int) -> tools.Tool:
         try:
             tool = self._tools[tool_id]
         except KeyError:
-            raise Exception
+            raise workflow_exceptions.ToolDoesNotExist
         return tool
 
     def _clean_tool_ids(self, input_ids: Union[list[int], int]) -> list[int]:

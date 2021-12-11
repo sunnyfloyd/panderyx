@@ -220,3 +220,15 @@ class TestWorkflow(TestCase):
             tool_id=tool_3.id,
             input_ids=[tool_2.id, tool_4.id],
         )
+
+    def test_adding_tool_with_proper_coordinates(self) -> None:
+        ...
+
+    def test_adding_tool_with_improper_coordinates(self) -> None:
+        ...
+
+    def test_adding_proper_coordinates(self) -> None:
+        ...
+
+    def test_adding_improper_coordinates(self) -> None:
+        ...
