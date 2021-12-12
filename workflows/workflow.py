@@ -22,7 +22,7 @@ class Workflow:
         input_ids: Optional[Union[list[int], int]] = None,
         output_ids: Optional[Union[list[int], int]] = None,
         coordinates: Optional[tuple[int, int]] = None,
-    ) -> int:
+    ) -> tools.Tool:
         try:
             tool_class = self.TOOL_CHOICES[tool_choice]
             next_id = self._get_next_tool_id()
@@ -67,34 +67,40 @@ class Workflow:
 
             del self._tools[tool_id]
 
-    def add_tool_input(self, tool_id: int, input_ids: Union[list[int], int]) -> None:
+    def add_tool_input(self, tool_id: int, input_ids: Union[list[int], int]) -> tools.Tool:
         tool = self._get_tool_by_id(tool_id)
         input_ids = self._clean_tool_ids(input_ids)
 
         for input_id in input_ids:
             tool.add_input(input_id)
             self._tools[input_id].add_output(tool_id)
+        
+        return tool
 
-    def remove_tool_input(self, tool_id: int, input_ids: Union[list[int], int]) -> None:
+    def remove_tool_input(self, tool_id: int, input_ids: Union[list[int], int]) -> tools.Tool:
         tool = self._get_tool_by_id(tool_id)
         input_ids = self._clean_tool_ids(input_ids)
 
         for input_id in input_ids:
             tool.remove_input(input_id)
             self._tools[input_id].remove_output(tool_id)
+        
+        return tool
 
-    def edit_tool_config(self, tool_id: int, config: dict) -> None:
+    def edit_tool_config(self, tool_id: int, config: dict) -> tools.Tool:
         NotImplementedError
 
     def set_tool_coordinates(
         self, tool_id: int, coordinates: Optional[tuple[int, int]] = None
-    ) -> None:
+    ) -> tools.Tool:
         # I need to decide where to fit a check if coordinates will fit canvas
         tool = self._get_tool_by_id(tool_id)
         coordinates = (
             coordinates if coordinates is not None else self._get_default_coordinates()
         )
         tool.coordinates = coordinates
+
+        return tool
 
     def _get_default_coordinates(self) -> tuple[int, int]:
         # might require more sophisticated logic in the future
