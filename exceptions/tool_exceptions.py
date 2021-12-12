@@ -1,4 +1,4 @@
-from workflows.workflow_constants import MAX_CANVAS_SIZE
+from workflows import workflow_constants
 
 class TooManyInputs(Exception):
     def __str__(self) -> str:
@@ -20,4 +20,4 @@ class NotIntCoordinates(Exception):
 
 class CoordinatesOutOfRange(Exception):
     def __str__(self) -> str:
-        return f"Both coordinates must fall in the [0, {MAX_CANVAS_SIZE}] range."
+        return f"Both coordinates must fall in the [0, {workflow_constants.MAX_CANVAS_SIZE}] range."

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional, Union
 from exceptions import tool_exceptions
-from workflows.workflow_constants import MAX_CANVAS_SIZE
+from workflows import workflow_constants
 
 
 class Tool:
@@ -67,7 +67,7 @@ class Tool:
 
         x, y = coordinates
 
-        if x < 0 or x > MAX_CANVAS_SIZE or y < 0 or y > MAX_CANVAS_SIZE:
+        if any[x < 0, x > workflow_constants.MAX_CANVAS_SIZE, y < 0, y > workflow_constants.MAX_CANVAS_SIZE]:
             raise 
 
         self._x, self._y = x, y
