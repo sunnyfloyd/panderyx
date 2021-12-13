@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional, Union
 from exceptions import tool_exceptions
-from workflows.workflow_constants import MAX_CANVAS_SIZE
+from workflows import workflow_constants
 
 
 class Tool:
@@ -63,12 +63,12 @@ class Tool:
     @coordinates.setter
     def coordinates(self, coordinates: tuple[int, int]):
         if any(not isinstance(coordinate, int) for coordinate in coordinates):
-            raise tool_exceptions.NotIntCoordinates
+            raise TypeError("Coordinates need to be a tuple of integers.")
 
         x, y = coordinates
 
-        if x < 0 or x > MAX_CANVAS_SIZE or y < 0 or y > MAX_CANVAS_SIZE:
-            raise tool_exceptions.CoordinatesOutOfRange
+        if any[x < 0, x > workflow_constants.MAX_CANVAS_SIZE, y < 0, y > workflow_constants.MAX_CANVAS_SIZE]:
+            raise ValueError(f"Both coordinates must fall in the [0, {workflow_constants.MAX_CANVAS_SIZE}] range.")
 
         self._x, self._y = x, y
 
