@@ -68,7 +68,7 @@ class Tool:
         x, y = coordinates
 
         if x < 0 or x > MAX_CANVAS_SIZE or y < 0 or y > MAX_CANVAS_SIZE:
-            raise 
+            raise tool_exceptions.CoordinatesOutOfRange
 
         self._x, self._y = x, y
 
