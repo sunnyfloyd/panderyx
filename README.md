@@ -46,7 +46,6 @@ Web application that provides a user-friendly codeless interface for data manipu
 - create tests for len properties for both Workflow and Tool classes (Tool methods should be tested in a new test class)
 - tool errors should be added to `self._errors` on tool and exposed when tool is created/modified
 - `workflow_exceptions.ToolNotAvailable` should be handled in the view
-- remove **outputs** and associated methods
 - Those fragments should also handled by internal Workflow `add_tool_input` method
 
 ```py
