@@ -4,7 +4,7 @@ from exceptions import workflow_exceptions, tool_exceptions
 from rich import print
 
 
-class TestWorkflow(TestCase):
+class TestToolInsertion(TestCase):
     def setUp(self) -> None:
         self.workflow = workflow.Workflow()
 
@@ -111,6 +111,11 @@ class TestWorkflow(TestCase):
         self.assertEqual(len(self.workflow), 4)
         self.assertEqual(len(tool_4.errors["input"]), 1)
 
+
+class TestToolRemoval(TestCase):
+    def setUp(self) -> None:
+        self.workflow = workflow.Workflow()
+
     def test_removing_existing_tool(self) -> None:
         tool_id = self.workflow.insert_tool("input").id
         self.workflow.remove_tool(tool_ids=tool_id)
@@ -138,6 +143,11 @@ class TestWorkflow(TestCase):
         )
 
         self.assertEqual(len(self.workflow), 0)
+
+
+class TestToolInputAdditionRemoval(TestCase):
+    def setUp(self) -> None:
+        self.workflow = workflow.Workflow()
 
     def test_adding_proper_input(self) -> None:
         tool_1 = self.workflow.insert_tool("input")
@@ -212,12 +222,10 @@ class TestWorkflow(TestCase):
             input_ids=[tool_1.id, tool_4.id],
         )
 
-        # self.assertRaises(
-        #     tool_exceptions.InputDoesNotExist,
-        #     self.workflow.remove_tool_input,
-        #     tool_id=tool_3.id,
-        #     input_ids=[tool_2.id, tool_4.id],
-        # )
+
+class TestWorkflow(TestCase):
+    def setUp(self) -> None:
+        self.workflow = workflow.Workflow()
 
     def test_adding_tool_with_proper_coordinates(self) -> None:
         ...
