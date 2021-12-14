@@ -15,17 +15,22 @@ class Tool:
         self.config = {}
         self._x = None
         self._y = None
+        self.errors = {}
 
     def add_input(self, input_id: int) -> None:
         if self.number_of_inputs >= self.max_number_of_inputs:
-            raise tool_exceptions.TooManyInputs
-        self._inputs.add(input_id)
+            self.errors.setdefault("input", []).append(
+                f"Skipped input addition for {input_id} - max number of inputs ({self.max_number_of_inputs}) reached."
+            )
+        else:
+            self._inputs.add(input_id)
 
     def remove_input(self, input_id: int) -> None:
         try:
             self._inputs.remove(input_id)
         except KeyError:
-            raise tool_exceptions.InputDoesNotExist
+            pass
+            # raise tool_exceptions.InputDoesNotExist
 
     def add_output(self, output_id: int) -> None:
         self._outputs.add(output_id)
@@ -67,8 +72,15 @@ class Tool:
 
         x, y = coordinates
 
-        if any[x < 0, x > workflow_constants.MAX_CANVAS_SIZE, y < 0, y > workflow_constants.MAX_CANVAS_SIZE]:
-            raise ValueError(f"Both coordinates must fall in the [0, {workflow_constants.MAX_CANVAS_SIZE}] range.")
+        if any[
+            x < 0,
+            x > workflow_constants.MAX_CANVAS_SIZE,
+            y < 0,
+            y > workflow_constants.MAX_CANVAS_SIZE,
+        ]:
+            raise ValueError(
+                f"Both coordinates must fall in the [0, {workflow_constants.MAX_CANVAS_SIZE}] range."
+            )
 
         self._x, self._y = x, y
 
