@@ -23,7 +23,7 @@ class Tool:
 
         Args:
             input_id (int): tool ID to be added to the inputs set.
-        """        
+        """
         if self.number_of_inputs >= self.max_number_of_inputs:
             self.errors.setdefault("input", []).append(
                 f"Skipped input addition for {input_id} - max number of inputs ({self.max_number_of_inputs}) reached."
@@ -36,7 +36,7 @@ class Tool:
 
         Args:
             input_id (int): tool ID to be removed from the inputs set.
-        """        
+        """
         try:
             self._inputs.remove(input_id)
         except KeyError:
@@ -48,7 +48,7 @@ class Tool:
 
         Args:
             output_id (int): tool ID to be added to the outputs set.
-        """   
+        """
         self._outputs.add(output_id)
 
     def remove_output(self, output_id: int) -> None:
@@ -56,12 +56,16 @@ class Tool:
 
         Args:
             output_id (int): tool ID to be removed from the outputs set.
-        """      
+        """
         try:
             self._outputs.remove(output_id)
         except KeyError:
             pass
             # raise tool_exceptions.OutputDoesNotExist
+
+    def clean_errors(self):
+        """Cleans errors from the tool."""
+        self.errors = {}
 
     @property
     def id(self):
@@ -89,17 +93,19 @@ class Tool:
 
     @coordinates.setter
     def coordinates(self, coordinates: tuple[int, int]):
-        if any(not isinstance(coordinate, int) for coordinate in coordinates):
+        try:
+            x, y = map(int, coordinates)
+        except ValueError:
             raise TypeError("Coordinates need to be a tuple of integers.")
 
-        x, y = coordinates
-
-        if any[
-            x < 0,
-            x > workflow_constants.MAX_CANVAS_SIZE,
-            y < 0,
-            y > workflow_constants.MAX_CANVAS_SIZE,
-        ]:
+        if any(
+            [
+                x < 0,
+                x > workflow_constants.MAX_CANVAS_SIZE,
+                y < 0,
+                y > workflow_constants.MAX_CANVAS_SIZE,
+            ]
+        ):
             raise ValueError(
                 f"Both coordinates must fall in the [0, {workflow_constants.MAX_CANVAS_SIZE}] range."
             )

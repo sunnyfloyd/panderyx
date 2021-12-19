@@ -145,7 +145,7 @@ class TestToolRemoval(TestCase):
         self.assertEqual(len(self.workflow), 0)
 
 
-class TestToolInputAdditionRemoval(TestCase):
+class TestToolInputAddition(TestCase):
     def setUp(self) -> None:
         self.workflow = workflow.Workflow()
 
@@ -182,6 +182,11 @@ class TestToolInputAdditionRemoval(TestCase):
             input_ids=[tool_1.id, 42],
         )
         self.assertEqual(tool_3.number_of_inputs, 0)
+
+
+class TestToolInputRemoval(TestCase):
+    def setUp(self) -> None:
+        self.workflow = workflow.Workflow()
 
     def test_removing_proper_input(self) -> None:
         tool_1 = self.workflow.insert_tool("input")
@@ -223,18 +228,68 @@ class TestToolInputAdditionRemoval(TestCase):
         )
 
 
-class TestWorkflow(TestCase):
+class TestToolCoordinates(TestCase):
     def setUp(self) -> None:
         self.workflow = workflow.Workflow()
+        self.tool = self.workflow.insert_tool("input")
 
-    def test_adding_tool_with_proper_coordinates(self) -> None:
-        ...
+    def test_setting_proper_coordinates(self) -> None:
+        tool = self.workflow.set_tool_coordinates(
+            tool_id=self.tool.id, coordinates=(100, 200)
+        )
 
-    def test_adding_tool_with_improper_coordinates(self) -> None:
-        ...
+        self.assertEqual(tool._x, 100)
+        self.assertEqual(tool._y, 200)
 
-    def test_adding_proper_coordinates(self) -> None:
-        ...
+    def test_inserting_tool_with_out_of_range_coordinates(self) -> None:
+        # negative x
+        self.assertRaises(
+            ValueError,
+            self.workflow.set_tool_coordinates,
+            tool_id=self.tool.id,
+            coordinates=(100, -200),
+        )
+        # negative y
+        self.assertRaises(
+            ValueError,
+            self.workflow.set_tool_coordinates,
+            tool_id=self.tool.id,
+            coordinates=(-100, 200),
+        )
+        # negative x and y
+        self.assertRaises(
+            ValueError,
+            self.workflow.set_tool_coordinates,
+            tool_id=self.tool.id,
+            coordinates=(-100, -200),
+        )
 
-    def test_adding_improper_coordinates(self) -> None:
-        ...
+    def test_inserting_tool_with_valid_non_int_coordinates(self) -> None:
+        # float
+        tool = self.workflow.insert_tool("input", coordinates=(100.0, 200.0))
+        self.assertEqual(tool._x, 100)
+        self.assertEqual(tool._y, 200)
+
+        # int
+        tool = self.workflow.insert_tool("input", coordinates=("100", "200"))
+        self.assertEqual(tool._x, 100)
+        self.assertEqual(tool._y, 200)
+
+    def test_inserting_tool_with_invalid_non_int_coordinates(self) -> None:
+        self.assertRaises(
+            TypeError,
+            self.workflow.insert_tool,
+            tool_choice="input",
+            coordinates=(100, "200a"),
+        )
+
+    def test_inserting_tool_with_proper_coordinates(self) -> None:
+        tool = self.workflow.insert_tool("input", coordinates=(100, 200))
+
+        self.assertEqual(tool._x, 100)
+        self.assertEqual(tool._y, 200)
+
+
+class TestToolConfig(TestCase):
+    def setUp(self) -> None:
+        self.workflow = workflow.Workflow()

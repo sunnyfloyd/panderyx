@@ -61,7 +61,7 @@ class Workflow:
                 self.add_tool_input(tool_id=output_id, input_ids=tool.id)
 
         if coordinates is not None:
-            self.set_tool_coordinates(coordinates)
+            self.set_tool_coordinates(tool_id=tool.id, coordinates=coordinates)
 
         return tool
 
@@ -97,7 +97,7 @@ class Workflow:
     def add_tool_input(
         self, tool_id: int, input_ids: Union[list[int], int]
     ) -> tools.Tool:
-        """Adds a new input or inputs for the tool existing in the current workflow.
+        """Adds new input(s) for the tool existing in the current workflow.
 
         Args:
             tool_id (int): tool ID to which input(s) should be added.
@@ -210,7 +210,7 @@ class Workflow:
 
         Args:
             tool_id (int): ID to be added to the used ID pool.
-        """        
+        """
         self._used_ids.add(tool_id)
 
     def _get_next_tool_id(self) -> int:
@@ -218,7 +218,7 @@ class Workflow:
 
         Returns:
             int: next available tool ID.
-        """        
+        """
         return max(self._used_ids) + 1
 
     def _build_flow(self) -> None:

@@ -43,23 +43,4 @@ Web application that provides a user-friendly codeless interface for data manipu
 
 ## TO-DO
 
-- create tests for len properties for both Workflow and Tool classes (Tool methods should be tested in a new test class)
-- tool errors should be added to `self._errors` on tool and exposed when tool is created/modified
-- `workflow_exceptions.ToolNotAvailable` should be handled in the view
-- Those fragments should also handled by internal Workflow `add_tool_input` method
-
-```py
-# ...
-if input_ids is not None:
-    input_ids = self._clean_tool_ids(input_ids)
-    for input_id in input_ids:
-        tool.add_input(input_id)
-
-if output_ids is not None:
-    output_ids = self._clean_tool_ids(output_ids)
-    for output_id in output_ids:
-        tool.add_output(output_id)
-# ...
-```
-- Same as above should be applied for `remove_tool` using `remove_tool_input` method
 - Separate method for initializing config (maybe config fields in the future)
