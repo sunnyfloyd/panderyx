@@ -43,4 +43,6 @@ Web application that provides a user-friendly codeless interface for data manipu
 
 ## TO-DO
 
-- Separate method for initializing config (maybe config fields in the future)
+- Create new Config class that will store config fields and config methods; each tool would use different config class that inherits from main Config class.
+- Config class would be a dataclass or a class validated with the use of pydantic.
+- Each config field would be defined by a different class (int, str, custom class) that would validate whether passed value is correct. It would also allow for indication whether given field is required or not by passing some `is_required` parameter.

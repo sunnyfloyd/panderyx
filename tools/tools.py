@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, Union
+from typing import Optional, Tuple, Union
 from exceptions import tool_exceptions
 from workflows import workflow_constants
 
@@ -12,7 +12,7 @@ class Tool:
         self._id = id
         self._inputs = set()
         self._outputs = set()
-        self.config = {}
+        self._config = {}
         self._x = None
         self._y = None
         self.errors = {}
@@ -68,31 +68,31 @@ class Tool:
         self.errors = {}
 
     @property
-    def id(self):
+    def id(self) -> int:
         return self._id
 
     @property
-    def inputs(self):
+    def inputs(self) -> list:
         return self._inputs
 
     @property
-    def outputs(self):
+    def outputs(self) -> list:
         return self._outputs
 
     @property
-    def number_of_inputs(self):
+    def number_of_inputs(self) -> int:
         return len(self._inputs)
 
     @property
-    def number_of_outputs(self):
+    def number_of_outputs(self) -> int:
         return len(self._outputs)
 
     @property
-    def coordinates(self):
+    def coordinates(self) -> Tuple[int, int]:
         return (self._x, self._y)
 
     @coordinates.setter
-    def coordinates(self, coordinates: tuple[int, int]):
+    def coordinates(self, coordinates: tuple[int, int]) -> None:
         try:
             x, y = map(int, coordinates)
         except ValueError:
@@ -112,6 +112,19 @@ class Tool:
 
         self._x, self._y = x, y
 
+    @property
+    def config(self):
+        return self._config
+
+    @config.setter
+    def config(self, config):
+        for param, value in config.items():
+            if param not in self._config:
+                raise KeyError(f"'{param}' is not a part of tool's configuration.")
+            config[param] = value
+        
+        return self._config
+
 
 class RootTool(Tool):
     max_number_of_inputs = 0
@@ -119,7 +132,7 @@ class RootTool(Tool):
 
     def __init__(self, id=None) -> None:
         super().__init__(id=id)
-        self.config = {}
+        self._config = {}
 
 
 class InputTool(Tool):
@@ -127,7 +140,7 @@ class InputTool(Tool):
 
     def __init__(self, id=None) -> None:
         super().__init__(id=id)
-        self.config = {
+        self._config = {
             "path": {"value": "", "is_required": True},
             "extension": {"value": "", "is_required": True},
         }
@@ -138,7 +151,7 @@ class GenericTool(Tool):
 
     def __init__(self, id=None) -> None:
         super().__init__(id=id)
-        self.config = {}
+        self._config = {}
 
 
 class LargeGenericTool(GenericTool):

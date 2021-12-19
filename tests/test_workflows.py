@@ -293,3 +293,11 @@ class TestToolCoordinates(TestCase):
 class TestToolConfig(TestCase):
     def setUp(self) -> None:
         self.workflow = workflow.Workflow()
+        self.tool = self.workflow.insert_tool("input")
+
+    def test_setting_config_with_valid_parameters(self):
+        config = {
+            "path": {"value": "http://www.google.pl", "is_required": True},
+            "extension": {"value": "csv", "is_required": True},
+        }
+        self.workflow.set_tool_config(tool_id=self.tool.id, config=config)
