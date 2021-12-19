@@ -18,6 +18,12 @@ class Tool:
         self.errors = {}
 
     def add_input(self, input_id: int) -> None:
+        """Adds tool ID to the inputs set if addition will not exceed number of maximum possible inputs
+        (max_number_of_inputs).
+
+        Args:
+            input_id (int): tool ID to be added to the inputs set.
+        """        
         if self.number_of_inputs >= self.max_number_of_inputs:
             self.errors.setdefault("input", []).append(
                 f"Skipped input addition for {input_id} - max number of inputs ({self.max_number_of_inputs}) reached."
@@ -26,6 +32,11 @@ class Tool:
             self._inputs.add(input_id)
 
     def remove_input(self, input_id: int) -> None:
+        """Removes tool ID from the inputs set.
+
+        Args:
+            input_id (int): tool ID to be removed from the inputs set.
+        """        
         try:
             self._inputs.remove(input_id)
         except KeyError:
@@ -33,13 +44,24 @@ class Tool:
             # raise tool_exceptions.InputDoesNotExist
 
     def add_output(self, output_id: int) -> None:
+        """Adds tool ID to the outputs set.
+
+        Args:
+            output_id (int): tool ID to be added to the outputs set.
+        """   
         self._outputs.add(output_id)
 
     def remove_output(self, output_id: int) -> None:
+        """Removes tool ID from the outputs set.
+
+        Args:
+            output_id (int): tool ID to be removed from the outputs set.
+        """      
         try:
             self._outputs.remove(output_id)
         except KeyError:
-            raise tool_exceptions.OutputDoesNotExist
+            pass
+            # raise tool_exceptions.OutputDoesNotExist
 
     @property
     def id(self):
