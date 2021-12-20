@@ -1,18 +1,21 @@
 from __future__ import annotations
 from typing import Optional, Tuple, Union
+from pydantic import ValidationError
 from exceptions import tool_exceptions
 from workflows import workflow_constants
+from configs import configs
 
 
 class Tool:
     max_number_of_inputs = 1
     is_root = False
+    config_class = None
 
     def __init__(self, id=None) -> None:
         self._id = id
         self._inputs = set()
         self._outputs = set()
-        self._config = {}
+        self._config = None
         self._x = None
         self._y = None
         self.errors = {}
@@ -117,13 +120,11 @@ class Tool:
         return self._config
 
     @config.setter
-    def config(self, config):
-        for param, value in config.items():
-            if param not in self._config:
-                raise KeyError(f"'{param}' is not a part of tool's configuration.")
-            config[param] = value
-        
-        return self._config
+    def config(self, data):
+        try:
+            self._config = self.config_class(**data)
+        except ValidationError as e:
+            self.errors["config"] = e.json()
 
 
 class RootTool(Tool):
@@ -132,18 +133,14 @@ class RootTool(Tool):
 
     def __init__(self, id=None) -> None:
         super().__init__(id=id)
-        self._config = {}
 
 
 class InputTool(Tool):
     max_number_of_inputs = 0
+    config_class = configs.InputConfig
 
     def __init__(self, id=None) -> None:
         super().__init__(id=id)
-        self._config = {
-            "path": {"value": "", "is_required": True},
-            "extension": {"value": "", "is_required": True},
-        }
 
 
 class GenericTool(Tool):
@@ -151,7 +148,6 @@ class GenericTool(Tool):
 
     def __init__(self, id=None) -> None:
         super().__init__(id=id)
-        self._config = {}
 
 
 class LargeGenericTool(GenericTool):
