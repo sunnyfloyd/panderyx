@@ -1,6 +1,6 @@
 from unittest import TestCase
 from workflows import workflow
-from exceptions import workflow_exceptions, tool_exceptions
+from exceptions import workflow_exceptions
 from rich import print
 
 
@@ -42,18 +42,16 @@ class TestToolInsertion(TestCase):
     def test_inserting_tool_with_multiple_inputs(self) -> None:
         tool_1 = self.workflow.insert_tool("input")
         tool_2 = self.workflow.insert_tool("input")
-        tool_3 = self.workflow.insert_tool("generic")
 
         self.workflow.insert_tool("generic", input_ids=[tool_1.id, tool_2.id])
-        self.assertEqual(len(self.workflow), 4)
+        self.assertEqual(len(self.workflow), 3)
 
     def test_inserting_tool_with_multiple_outputs(self) -> None:
         tool_1 = self.workflow.insert_tool("input")
         tool_2 = self.workflow.insert_tool("input")
-        tool_3 = self.workflow.insert_tool("generic")
 
         self.workflow.insert_tool("generic", output_ids=[tool_1.id, tool_2.id])
-        self.assertEqual(len(self.workflow), 4)
+        self.assertEqual(len(self.workflow), 3)
 
     def test_inserting_tool_with_single_input(self) -> None:
         tool_1 = self.workflow.insert_tool("input")
@@ -290,14 +288,14 @@ class TestToolCoordinates(TestCase):
         self.assertEqual(tool._y, 200)
 
 
-class TestToolConfig(TestCase):
-    def setUp(self) -> None:
-        self.workflow = workflow.Workflow()
-        self.tool = self.workflow.insert_tool("input")
+# class TestToolConfig(TestCase):
+#     def setUp(self) -> None:
+#         self.workflow = workflow.Workflow()
+#         self.tool = self.workflow.insert_tool("input")
 
-    def test_setting_config_with_valid_parameters(self):
-        config = {
-            "path": {"value": "http://www.google.pl", "is_required": True},
-            "extension": {"value": "csv", "is_required": True},
-        }
-        self.workflow.set_tool_config(tool_id=self.tool.id, config=config)
+#     def test_setting_config_with_valid_parameters(self):
+#         config = {
+#             "path": {"value": "http://www.google.pl", "is_required": True},
+#             "extension": {"value": "csv", "is_required": True},
+#         }
+#         self.workflow.set_tool_config(tool_id=self.tool.id, config=config)

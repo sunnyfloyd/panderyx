@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Optional, Tuple, Union
 from pydantic import ValidationError
+from configs import config_exceptions
 from exceptions import tool_exceptions
 from workflows import workflow_constants
 from configs import configs
@@ -9,9 +10,9 @@ from configs import configs
 class Tool:
     max_number_of_inputs = 1
     is_root = False
-    config_class = None
+    _config_class = None
 
-    def __init__(self, id=None) -> None:
+    def __init__(self, id: int) -> None:
         self._id = id
         self._inputs = set()
         self._outputs = set()
@@ -75,11 +76,11 @@ class Tool:
         return self._id
 
     @property
-    def inputs(self) -> list:
+    def inputs(self) -> set:
         return self._inputs
 
     @property
-    def outputs(self) -> list:
+    def outputs(self) -> set:
         return self._outputs
 
     @property
@@ -91,7 +92,7 @@ class Tool:
         return len(self._outputs)
 
     @property
-    def coordinates(self) -> Tuple[int, int]:
+    def coordinates(self) -> tuple:
         return (self._x, self._y)
 
     @coordinates.setter
@@ -121,8 +122,10 @@ class Tool:
 
     @config.setter
     def config(self, data):
+        if self._config_class is None:
+            raise config_exceptions.ConfigClassIsMissing
         try:
-            self._config = self.config_class(**data)
+            self._config = self._config_class(**data)
         except ValidationError as e:
             self.errors["config"] = e.json()
 
@@ -131,22 +134,22 @@ class RootTool(Tool):
     max_number_of_inputs = 0
     is_root = True
 
-    def __init__(self, id=None) -> None:
+    def __init__(self, id: int) -> None:
         super().__init__(id=id)
 
 
 class InputTool(Tool):
     max_number_of_inputs = 0
-    config_class = configs.InputConfig
+    _config_class = configs.InputConfig
 
-    def __init__(self, id=None) -> None:
+    def __init__(self, id: int) -> None:
         super().__init__(id=id)
 
 
 class GenericTool(Tool):
     max_number_of_inputs = 2
 
-    def __init__(self, id=None) -> None:
+    def __init__(self, id: int) -> None:
         super().__init__(id=id)
 
 
