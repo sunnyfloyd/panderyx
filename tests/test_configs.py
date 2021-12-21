@@ -1,6 +1,8 @@
 from unittest import TestCase
-from configs import configs
+
 from pydantic import ValidationError
+
+from configs import configs
 
 
 class TestConfigs(TestCase):
@@ -16,6 +18,6 @@ class TestConfigs(TestCase):
     def test_input_config_with_missing_required_field(self):
         data = {"extensio": "csv"}
         self.assertRaises(ValidationError, configs.InputConfig, **data)
-        
+
         data = {"path": "http://www.example.com/file.csv"}
         self.assertRaises(ValidationError, configs.InputConfig, **data)

@@ -1,10 +1,21 @@
 from __future__ import annotations
 from typing import Optional, Union
+
 from tools import tools
 from exceptions import workflow_exceptions
 
 
 class Workflow:
+    """A class to represent a workflow.
+
+    Workflow class provides set of methods to manage state of the workflow.
+    It allows for tool insertions, removals and modifications.
+
+    When workflow is run data flow is built and each tool linked to the workflow
+    instance is executed in determined order. Tool outputs are then consolidated
+    in a JSON format.
+    """
+
     TOOL_CHOICES = {
         "generic": tools.GenericTool,
         "large_generic": tools.LargeGenericTool,
@@ -26,17 +37,18 @@ class Workflow:
         """Inserts a new tool to the current workflow.
 
         Args:
-            tool_choice (str): determines what tool is created (based on the available choices defined within the
-                Workflow class).
-            input_ids (list[int], int]): starting input or inputs for the tool identified by their IDs.
+            tool_choice (str): determines what tool is created (based on the
+                available choices defined within the Workflow class).
+            input_ids (list[int], int]): starting input or inputs for the tool
+                identified by their IDs. Defaults to None.
+            output_ids (list[int], int): starting output or outputs for the tool
+                identified by their IDs. Defaults to None.
+            coordinates (tuple[int, int]): coordinates for the tool on canvas.
                 Defaults to None.
-            output_ids (list[int], int): starting output or outputs for the tool identified by their IDs.
-                Defaults to None.
-            coordinates (tuple[int, int]): coordinates for the tool on canvas. Defaults to None.
 
         Raises:
-            workflow_exceptions.ToolNotAvailable: indicates that provided string does not refer to an available tool
-                from the Workflow class.
+            workflow_exceptions.ToolNotAvailable: indicates that provided string
+                does not refer to an available tool from the Workflow class.
 
         Returns:
             tools.Tool: instance of a Tool's class.
@@ -66,14 +78,17 @@ class Workflow:
         return tool
 
     def remove_tool(self, tool_ids: Union[list[int], int]) -> None:
-        """Removes existing tool from the current workflow and updates inputs and outputs of the linked tool instances.
+        """Removes existing tool from the current workflow.
+
+        Removes the tool from the workflow and updates inputs and outputs of the
+        linked tool instances.
 
         Args:
             tool_ids (list[int], int): tool ID or IDs that ought to be removed.
 
         Raises:
-            workflow_exceptions.RootCannotBeDeleted: indicates that selected tool for removal is a root which
-                cannot be deleted.
+            workflow_exceptions.RootCannotBeDeleted: indicates that selected
+                tool for removal is a root which cannot be deleted.
         """
         tool_ids = self._clean_tool_ids(tool_ids)
 
@@ -101,7 +116,8 @@ class Workflow:
 
         Args:
             tool_id (int): tool ID to which input(s) should be added.
-            input_ids (list[int], int]): input(s) to be added to the tool identified by their IDs.
+            input_ids (list[int], int]): input(s) to be added to the tool
+                identified by their IDs.
 
         Returns:
             tools.Tool: instance of a Tool's class.
@@ -118,11 +134,12 @@ class Workflow:
     def remove_tool_input(
         self, tool_id: int, input_ids: Union[list[int], int]
     ) -> tools.Tool:
-        """Removes an input or inputs from the tool existing in the current workflow.
+        """Removes input(s) from the tool existing in the current workflow.
 
         Args:
             tool_id (int): tool ID from which input(s) should be removed.
-            input_ids (list[int], int]): input(s) to be removed from the tool identified by their IDs.
+            input_ids (list[int], int]): input(s) to be removed from the tool
+                identified by their IDs.
 
         Returns:
             tools.Tool: instance of a Tool's class.
@@ -142,12 +159,15 @@ class Workflow:
     def set_tool_coordinates(
         self, tool_id: int, coordinates: Optional[tuple[int, int]] = None
     ) -> tools.Tool:
-        """Sets coordinates for the tool existing in the current workflow. If no coordinates are passed to this method
-        default coordinates will be calculated using _get_default_coordinates() internal method.
+        """Sets (x, y) coordinates for the tool existing in the current workflow.
+
+        If no coordinates are passed to this method, default coordinates will be
+        calculated using `_get_default_coordinates()` internal method.
 
         Args:
             tool_id (int): tool ID for which coordinates are to be set.
-            coordinates (tuple[int, int]): tuple of X, Y coordinates. Defaults to None.
+            coordinates (tuple[int, int]): tuple of (x, y) coordinates.
+                Defaults to None.
 
         Returns:
             tools.Tool: instance of a Tool's class.
@@ -166,13 +186,14 @@ class Workflow:
         return (0, 0)
 
     def _get_tool_by_id(self, tool_id: int) -> tools.Tool:
-        """Returns an instance of a Tool class selected by its ID from the current workflow.
+        """Returns an instance of a Tool class selected by its ID.
 
         Args:
             tool_id (int): tool ID.
 
         Raises:
-            workflow_exceptions.ToolDoesNotExist: indicates that for provided ID there is no tool in this workflow.
+            workflow_exceptions.ToolDoesNotExist: indicates that for provided ID
+                there is no tool in this workflow.
 
         Returns:
             tools.Tool: instance of a Tool's class.
@@ -184,15 +205,18 @@ class Workflow:
         return tool
 
     def _clean_tool_ids(self, tool_ids: Union[list[int], int]) -> list[int]:
-        """Checks whether passed tool ID(s) exist in the current workflow and returns the list of tool IDs.
-        If at least one of the provided tool IDs is not found it raises an exception.
+        """Returns a validated list of tool ID(s).
+
+        Checks whether passed tool ID(s) exist in the current workflow
+        and returns the list of tool IDs. If at least one of the provided tool
+        IDs is not found, it raises an exception.
 
         Args:
             tool_ids (list[int], int): tool ID(s) to be cleaned.
 
         Raises:
-            workflow_exceptions.ToolDoesNotExist: indicates that at least one of the provided tool IDs is not present
-                in the current workflow.
+            workflow_exceptions.ToolDoesNotExist: indicates that at least one of
+                the provided tool IDs is not present in the current workflow.
 
         Returns:
             list[int]: list of checked tool IDs.
@@ -206,7 +230,7 @@ class Workflow:
         return cleaned_tool_ids
 
     def _add_tool_id(self, tool_id: int) -> None:
-        """Add an ID to the used ID pool.
+        """Adds an ID to the used ID pool.
 
         Args:
             tool_id (int): ID to be added to the used ID pool.
@@ -222,7 +246,7 @@ class Workflow:
         return max(self._used_ids) + 1
 
     def _build_flow(self) -> None:
-        ...
+        NotImplementedError
 
     def __len__(self) -> int:
         return len(self._tools) - 1
