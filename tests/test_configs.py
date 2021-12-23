@@ -16,7 +16,7 @@ class TestConfigs(TestCase):
         self.assertRaises(ValidationError, configs.InputConfig, **data)
 
     def test_input_config_with_missing_required_field(self):
-        data = {"extensio": "csv"}
+        data = {"extension": "csv"}
         self.assertRaises(ValidationError, configs.InputConfig, **data)
 
         data = {"path": "http://www.example.com/file.csv"}

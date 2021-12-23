@@ -10,11 +10,30 @@ from configs import config_exceptions
 
 
 class Tool:
+    """A class that represents a single tool in the workflow.
+
+    Tool class provides attributes that describe tool and define tool's relation
+    to other tools within the workflow.
+
+    Tool class methods allow for tool configuration and provide means to change
+    tool's relations with other tools in the workflow.
+
+    Attributes:
+        max_number_of_inputs (int): defines the maximum number of tool's inputs.
+        is_root (bool): indicates whether a tool is a root tool.
+        _config_class (configs.Config): determines class in which configuration
+            fields reside together with their validation methods.
+    """    
     max_number_of_inputs = 1
     is_root = False
     _config_class = None
 
     def __init__(self, id: int) -> None:
+        """Initializes Tool class based on the provided ID.
+
+        Args:
+            id (int): tool ID assigned in the Workflow class.
+        """
         self._id = id
         self._inputs = set()
         self._outputs = set()
@@ -24,8 +43,10 @@ class Tool:
         self.errors = {}
 
     def add_input(self, input_id: int) -> None:
-        """Adds tool ID to the inputs set if addition will not exceed number of maximum possible inputs
-        (max_number_of_inputs).
+        """Adds tool ID to the inputs set.
+
+        New input will be added if addition would not exceed number of maximum
+        possible inputs defined in `max_number_of_inputs` class attribute.
 
         Args:
             input_id (int): tool ID to be added to the inputs set.
@@ -69,36 +90,53 @@ class Tool:
             pass
             # raise tool_exceptions.OutputDoesNotExist
 
-    def clean_errors(self):
-        """Cleans errors from the tool."""
+    def clean_errors(self) -> None:
+        """Cleans errors from the tool's instance."""
         self.errors = {}
 
     @property
     def id(self) -> int:
+        """The tool ID."""
         return self._id
 
     @property
     def inputs(self) -> set:
+        """The tool inputs."""
         return self._inputs
 
     @property
     def outputs(self) -> set:
+        """The tool outputs."""
         return self._outputs
 
     @property
     def number_of_inputs(self) -> int:
+        """Number of elements in the tool's inputs."""
         return len(self._inputs)
 
     @property
     def number_of_outputs(self) -> int:
+        """Number of elements in the tool's outputs."""
         return len(self._outputs)
 
     @property
     def coordinates(self) -> tuple:
+        """(x, y) coordinates of the tool."""
         return (self._x, self._y)
 
     @coordinates.setter
     def coordinates(self, coordinates: tuple[int, int]) -> None:
+        """Sets (x, y) coordinates of the tool.
+
+        Args:
+            coordinates (tuple[int, int]): tuple of (x, y) coordinates.
+
+        Raises:
+            TypeError: indicates that passed value(s) for `coordinates`
+                are not ints and/or cannot be casted into integers.
+            ValueError: indicates that at least one of the provided coordinates
+                falls out of valid range.
+        """
         try:
             x, y = map(int, coordinates)
         except ValueError:
@@ -120,12 +158,22 @@ class Tool:
 
     @property
     def config(self):
+        """The tool config."""
         return self._config
 
     @config.setter
-    def config(self, data):
+    def config(self, data: dict):
+        """Sets `_config` to an instance of `_config_class` initialized with passed data.
+
+        Args:
+            data (dict): config dict defining tool's configuration.
+
+        Raises:
+            config_exceptions.ConfigClassIsNotDefined: indicates that for given
+                tool config class has not been defined.
+        """
         if self._config_class is None:
-            raise config_exceptions.ConfigClassIsMissing
+            raise config_exceptions.ConfigClassIsNotDefined
         try:
             self._config = self._config_class(**data)
         except ValidationError as e:

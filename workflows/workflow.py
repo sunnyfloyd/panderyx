@@ -23,6 +23,11 @@ class Workflow:
     }
 
     def __init__(self) -> None:
+        """Initializes Workflow class with root tool.
+
+        Workflow class is initialized with root tool with tool ID `0`. `_root`
+        points to root tool directly.
+        """
         self._root = tools.RootTool(id=0)
         self._tools = {0: self._root}
         self._used_ids = {0}
