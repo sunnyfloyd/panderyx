@@ -1,7 +1,10 @@
 from unittest import TestCase
 
+from pydantic import ValidationError
+
 from workflows import workflow
 from exceptions import workflow_exceptions
+from exceptions import config_exceptions
 
 from rich import print
 
@@ -228,7 +231,7 @@ class TestToolInputRemoval(TestCase):
         )
 
 
-class TestToolCoordinates(TestCase):
+class TestSettingToolCoordinates(TestCase):
     def setUp(self) -> None:
         self.workflow = workflow.Workflow()
         self.tool = self.workflow.insert_tool("input")
@@ -290,14 +293,41 @@ class TestToolCoordinates(TestCase):
         self.assertEqual(tool._y, 200)
 
 
-# class TestToolConfig(TestCase):
-#     def setUp(self) -> None:
-#         self.workflow = workflow.Workflow()
-#         self.tool = self.workflow.insert_tool("input")
+class TestSettingToolConfig(TestCase):
+    def setUp(self) -> None:
+        self.workflow = workflow.Workflow()
+        self.tool = self.workflow.insert_tool("input")
 
-#     def test_setting_config_with_valid_parameters(self):
-#         config = {
-#             "path": {"value": "http://www.google.pl", "is_required": True},
-#             "extension": {"value": "csv", "is_required": True},
-#         }
-#         self.workflow.set_tool_config(tool_id=self.tool.id, config=config)
+    def test_setting_config_with_valid_parameters(self) -> None:
+        data = {"path": "http://www.example.com/file.csv", "extension": "csv"}
+        self.workflow.set_tool_config(tool_id=self.tool.id, data=data)
+
+        # TODO: Add asserts for actual data in config
+        # The same checks should be added in the test_configs.py
+        # TODO: Think whether exceptions should have their own module or whether
+        # they should reside in respective modules instead
+
+    def test_setting_config_with_invalid_parameters(self) -> None:
+        data = {"path": "invalid_url", "extension": "csv"}
+        self.workflow.set_tool_config(tool_id=self.tool.id, data=data)
+        self.assertEqual(
+            self.tool.errors["config"][0]["type"], "value_error.url.scheme"
+        )
+
+        data = {"path": "http://www.example.com/file.csv"}
+        self.workflow.set_tool_config(tool_id=self.tool.id, data=data)
+        self.assertEqual(self.tool.errors["config"][0]["type"], "value_error.missing")
+
+        data = {"extension": "csv"}
+        self.workflow.set_tool_config(tool_id=self.tool.id, data=data)
+        self.assertEqual(self.tool.errors["config"][0]["type"], "value_error.missing")
+
+    def test_setting_config_on_non_config_tool(self) -> None:
+        tool = self.workflow._tools[0]
+        data = {"path": "http://www.example.com/file.csv", "extension": "csv"}
+        self.assertRaises(
+            config_exceptions.ConfigClassIsNotDefined,
+            self.workflow.set_tool_config,
+            tool_id=tool.id,
+            data=data,
+        )

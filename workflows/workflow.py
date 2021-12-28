@@ -158,8 +158,20 @@ class Workflow:
 
         return tool
 
-    def set_tool_config(self, tool_id: int, config: dict) -> tools.Tool:
-        NotImplementedError
+    def set_tool_config(self, tool_id: int, data: dict) -> tools.Tool:
+        """Sets tool's config to passed data dict.
+
+        Args:
+            tool_id (int): tool ID for which config should be set.
+            data (dict): dict of parameters for given tool.
+
+        Returns:
+            tools.Tool: instance of a Tool's class.
+        """        
+        tool = self._get_tool_by_id(tool_id)
+        tool.config = data
+
+        return tool
 
     def set_tool_coordinates(
         self, tool_id: int, coordinates: Optional[tuple[int, int]] = None
@@ -177,7 +189,7 @@ class Workflow:
         Returns:
             tools.Tool: instance of a Tool's class.
         """
-        # I need to decide where to fit a check if coordinates will fit canvas
+        # I need to decide where to put a check if coordinates will fit a canvas
         tool = self._get_tool_by_id(tool_id)
         coordinates = (
             coordinates if coordinates is not None else self._get_default_coordinates()

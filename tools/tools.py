@@ -3,10 +3,13 @@ from typing import Optional, Tuple, Union
 
 from pydantic import ValidationError
 
+import numpy as np
+import pandas as pd
+
 from exceptions import tool_exceptions
+from exceptions import config_exceptions
 from workflows import workflow_constants
 from configs import configs
-from configs import config_exceptions
 
 
 class Tool:
@@ -23,10 +26,12 @@ class Tool:
         is_root (bool): indicates whether a tool is a root tool.
         _config_class (configs.Config): determines class in which configuration
             fields reside together with their validation methods.
-    """    
+    """
+
     max_number_of_inputs = 1
     is_root = False
     _config_class = None
+    _config_data = None
 
     def __init__(self, id: int) -> None:
         """Initializes Tool class based on the provided ID.
@@ -37,10 +42,13 @@ class Tool:
         self._id = id
         self._inputs = set()
         self._outputs = set()
-        self._config = None
+        self._config = (
+            self._config_class(**self._config_data) if self._config_class else None
+        )
         self._x = None
         self._y = None
         self.errors = {}
+        self.df = None
 
     def add_input(self, input_id: int) -> None:
         """Adds tool ID to the inputs set.
@@ -157,12 +165,12 @@ class Tool:
         self._x, self._y = x, y
 
     @property
-    def config(self):
-        """The tool config."""
+    def config(self) -> Union[dict, None]:
+        """The tool's config."""
         return self._config
 
     @config.setter
-    def config(self, data: dict):
+    def config(self, data: dict) -> None:
         """Sets `_config` to an instance of `_config_class` initialized with passed data.
 
         Args:
@@ -177,7 +185,7 @@ class Tool:
         try:
             self._config = self._config_class(**data)
         except ValidationError as e:
-            self.errors["config"] = e.json()
+            self.errors["config"] = e.errors()
 
 
 class RootTool(Tool):
@@ -191,9 +199,13 @@ class RootTool(Tool):
 class InputTool(Tool):
     max_number_of_inputs = 0
     _config_class = configs.InputConfig
+    _config_data = {"path": "https://www.example.com/file.csv", "extension": "csv"}
 
     def __init__(self, id: int) -> None:
         super().__init__(id=id)
+
+    def run(self) -> pd.DataFrame:
+        ...
 
 
 class GenericTool(Tool):
