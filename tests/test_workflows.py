@@ -302,10 +302,8 @@ class TestSettingToolConfig(TestCase):
         data = {"path": "http://www.example.com/file.csv", "extension": "csv"}
         self.workflow.set_tool_config(tool_id=self.tool.id, data=data)
 
-        # TODO: Add asserts for actual data in config
-        # The same checks should be added in the test_configs.py
-        # TODO: Think whether exceptions should have their own module or whether
-        # they should reside in respective modules instead
+        self.assertEqual(self.tool.config.path, "http://www.example.com/file.csv")
+        self.assertEqual(self.tool.config.extension, "csv")
 
     def test_setting_config_with_invalid_parameters(self) -> None:
         data = {"path": "invalid_url", "extension": "csv"}
@@ -331,3 +329,4 @@ class TestSettingToolConfig(TestCase):
             tool_id=tool.id,
             data=data,
         )
+        self.assertEqual(tool.config, None)

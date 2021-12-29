@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional, Tuple, Union
 
-from pydantic import ValidationError
+import pydantic
 
 import numpy as np
 import pandas as pd
@@ -165,7 +165,7 @@ class Tool:
         self._x, self._y = x, y
 
     @property
-    def config(self) -> Union[dict, None]:
+    def config(self) -> Union[pydantic.BaseModel, None]:
         """The tool's config."""
         return self._config
 
@@ -184,7 +184,7 @@ class Tool:
             raise config_exceptions.ConfigClassIsNotDefined
         try:
             self._config = self._config_class(**data)
-        except ValidationError as e:
+        except pydantic.ValidationError as e:
             self.errors["config"] = e.errors()
 
 
@@ -199,7 +199,7 @@ class RootTool(Tool):
 class InputTool(Tool):
     max_number_of_inputs = 0
     _config_class = configs.InputConfig
-    _config_data = {"path": "https://www.example.com/file.csv", "extension": "csv"}
+    _config_data = {"path": "https://www.example.com/test.xlsx", "extension": "xlsx"}
 
     def __init__(self, id: int) -> None:
         super().__init__(id=id)
