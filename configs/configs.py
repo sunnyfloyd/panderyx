@@ -1,6 +1,7 @@
-from pydantic import BaseModel, HttpUrl
+from typing import Union
+from pydantic import BaseModel, HttpUrl, FilePath
 
 
 class InputConfig(BaseModel):
-    path: HttpUrl
+    path: Union[HttpUrl, FilePath]
     extension: str

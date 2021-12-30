@@ -205,7 +205,15 @@ class InputTool(Tool):
         super().__init__(id=id)
 
     def run(self) -> pd.DataFrame:
-        ...
+        extension = self.config.extension
+
+        if extension == "csv":
+            df = pd.read_csv(self.config.path)
+            return df
+        else:
+            raise ValueError(
+                f"Provided extension '{extension}' of a file is not recognized."
+            )
 
 
 class GenericTool(Tool):
