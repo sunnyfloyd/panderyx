@@ -1,2 +1,2 @@
 test:
-	PYTHONPATH=. pytest
+	PYTHONPATH=. pytest $(f)
