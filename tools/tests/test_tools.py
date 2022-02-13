@@ -35,3 +35,5 @@ class TestInputTool(TestCase):
 
         self.assertEqual(df.shape[0], 280)
         self.assertEqual(df.shape[1], 712)
+
+        # TODO: test for improper url and file paths
