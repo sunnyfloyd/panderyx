@@ -7,7 +7,7 @@ Panderyx is a web app prepared for self-hosting. It lets you build automated ETL
 
 # Prerequisites
 
-- [Docker](https://docs.docker.com/docker-for-mac/install/)  
+- [Docker](https://docs.docker.com/docker-for-mac/install/)
 
 # Local Development
 
