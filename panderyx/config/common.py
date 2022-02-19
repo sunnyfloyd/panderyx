@@ -23,6 +23,7 @@ class Common(Configuration):
         "django_filters",  # for filtering rest endpoints
         # Your apps
         "panderyx.users",
+        "panderyx.workflows",
     )
 
     # https://docs.djangoproject.com/en/2.0/topics/http/middleware/
