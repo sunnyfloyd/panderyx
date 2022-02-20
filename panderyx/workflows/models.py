@@ -14,3 +14,9 @@ class Workflow(models.Model):
         auto_now_add=True, verbose_name=_("date of creation")
     )
     date_updated = models.DateTimeField(auto_now=True, verbose_name=_("last update"))
+
+    class Meta:
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.name} workflow owned by {self.user.username}"
