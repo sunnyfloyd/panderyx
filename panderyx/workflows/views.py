@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
@@ -16,6 +15,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
         IsAuthenticated,
         IsObjectOwnerOrAdmin,
     )
+    pagination_class = None
 
     def get_queryset(self):
         admin_permission = IsAdminUser()
