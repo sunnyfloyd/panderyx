@@ -15,7 +15,7 @@ class Local(Common):
     NOSE_ARGS = [
         BASE_DIR,
         "-s",
-        "--nologcapture",
+        # "--nologcapture",
         "--with-coverage",
         "--with-progressive",
         "--cover-package=panderyx",
