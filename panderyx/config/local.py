@@ -14,10 +14,10 @@ class Local(Common):
     TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
     NOSE_ARGS = [
         BASE_DIR,
-        "-s",
+        # "--verbosity=2",
+        "--nocapture",
         # "--nologcapture",
         "--with-coverage",
-        "--with-progressive",
         "--cover-package=panderyx",
     ]
 
