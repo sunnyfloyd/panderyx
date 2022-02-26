@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
+from panderyx.common.permissions import IsObjectOwnerOrAdmin
 from panderyx.workflows.models import Workflow
-from panderyx.workflows.permissions import IsObjectOwnerOrAdmin
 from panderyx.workflows.serializers import WorkflowSerializer
 
 
