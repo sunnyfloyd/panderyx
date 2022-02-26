@@ -24,7 +24,9 @@ class Tool(models.Model):
         DATA_INPUT = "data input", _("Data Input")
 
     input_type = models.CharField(choices=ToolType.choices, max_length=100)
-    inputs = models.ManyToManyField("self", symmetrical=False, related_name="outputs")
+    inputs = models.ManyToManyField(
+        "self", symmetrical=False, related_name="outputs", blank=True
+    )
     config = models.JSONField(null=True)
     data = models.URLField(null=True)
 
