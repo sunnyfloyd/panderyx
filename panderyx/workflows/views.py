@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from panderyx.common.permissions import IsObjectOwnerOrAdmin
+from panderyx.common.permissions import IsWorkflowOwnerOrAdmin
 from panderyx.workflows.models import Workflow
 from panderyx.workflows.serializers import WorkflowSerializer
 
@@ -13,7 +13,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     serializer_class = WorkflowSerializer
     permission_classes = (
         IsAuthenticated,
-        IsObjectOwnerOrAdmin,
+        IsWorkflowOwnerOrAdmin,
     )
     pagination_class = None
 
