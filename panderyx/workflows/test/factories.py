@@ -11,6 +11,5 @@ class WorkflowFactory(factory.django.DjangoModelFactory):
             "name",
         )
 
-    id = factory.Faker("uuid4")
     user = factory.SubFactory(UserFactory)
     name = factory.Sequence(lambda n: f"workflow{n}")
