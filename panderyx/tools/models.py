@@ -18,12 +18,6 @@ class Tool(models.Model):
     y = models.IntegerField(
         verbose_name=_("y coordinate"), validators=[MinValueValidator(0)], default=100
     )
-
-    class ToolType(models.TextChoices):
-        URL_INPUT = "url input", _("URL Input")
-        DATA_INPUT = "data input", _("Data Input")
-
-    input_type = models.CharField(choices=ToolType.choices, max_length=100)
     inputs = models.ManyToManyField(
         "self", symmetrical=False, related_name="outputs", blank=True
     )
