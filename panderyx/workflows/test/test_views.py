@@ -1,8 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase, force_authenticate
+from rest_framework.test import APITestCase
 
-from panderyx.users.models import User
 from panderyx.users.test.factories import UserFactory
 from panderyx.workflows.models import Workflow
 from panderyx.workflows.test.factories import WorkflowFactory
