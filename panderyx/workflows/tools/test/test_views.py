@@ -4,8 +4,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from panderyx.tools.models import Tool
-from panderyx.tools.test.factories import ToolFactory
+from panderyx.workflows.tools.models import Tool
+from panderyx.workflows.tools.test.factories import ToolFactory
 from panderyx.users.test.factories import UserFactory
 from panderyx.workflows.test.factories import WorkflowFactory
 

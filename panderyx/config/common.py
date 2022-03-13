@@ -24,7 +24,7 @@ class Common(Configuration):
         # Your apps
         "panderyx.users",
         "panderyx.workflows",
-        "panderyx.tools",
+        "panderyx.workflows.tools",
     )
 
     # https://docs.djangoproject.com/en/2.0/topics/http/middleware/

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from panderyx.tools.models import Tool
+from panderyx.workflows.tools.models import Tool
 
 
 class ToolSerializer(serializers.ModelSerializer):
