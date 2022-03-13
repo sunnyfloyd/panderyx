@@ -22,7 +22,6 @@ class Tool(models.Model):
         "self", symmetrical=False, related_name="outputs", blank=True
     )
     config = models.JSONField(null=True)
-    data = models.URLField(null=True)
 
     class Meta:
         ordering = ["workflow", "name"]
