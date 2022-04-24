@@ -7,6 +7,10 @@ from django.utils.translation import gettext_lazy as _
 from panderyx.workflows.models import Workflow
 
 
+class YearInSchool(models.TextChoices):
+    INPUT_URL = "input_url", _("URL Input")
+
+
 class Tool(models.Model):
     workflow = models.ForeignKey(
         Workflow, on_delete=models.CASCADE, related_name="tools"
@@ -21,6 +25,7 @@ class Tool(models.Model):
     inputs = models.ManyToManyField(
         "self", symmetrical=False, related_name="outputs", blank=True
     )
+    type = models.CharField(max_length=30, choices=YearInSchool.choices)
     config = models.JSONField(null=True)
 
     class Meta:

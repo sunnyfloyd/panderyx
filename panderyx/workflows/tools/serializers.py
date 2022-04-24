@@ -11,3 +11,8 @@ class ToolSerializer(serializers.ModelSerializer):
             "workflow",
             "data",
         ]
+
+    def validate_inputs(self, value):
+        ...
+        # TODO: Create validation to ensure that only tools from the current
+        # workflow are accepted
