@@ -4,9 +4,9 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from panderyx.common.permissions import IsWorkflowOwnerOrAdmin
-from panderyx.workflows.tools.models import Tool
-from panderyx.workflows.tools.serializers import ToolSerializer
 from panderyx.workflows.models import Workflow
+from panderyx.workflows.tools.models import Tool
+from panderyx.workflows.tools.serializers.tool import ToolSerializer
 
 
 class ToolViewSet(viewsets.ModelViewSet):
