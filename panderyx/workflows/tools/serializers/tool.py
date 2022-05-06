@@ -2,7 +2,6 @@ import dataclasses
 import json
 
 from rest_framework import exceptions, serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from panderyx.workflows.models import Workflow
 from panderyx.workflows.tools.dtos.input_tools import InputUrl
@@ -62,22 +61,6 @@ class ToolSerializer(serializers.ModelSerializer):
             "workflow",
             "data",
         ]
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=Tool.objects.all(),
-        #         fields=["workflow", "name"]
-        #     )
-        # ]
-        # TODO: Create validation to:
-        # 1. ensure that only tools from the current workflow are accepted as inputs
-
-    # def validate(self, attrs):
-    #     workflow_id = attrs["workflow"]
-    #     tool_name = attrs["name"]
-
-    #     if Tool.objects.filter(workflow=workflow_id, name=tool_name).exists():
-    #         raise exceptions.ValidationError("Tool name must be unique in a workflow.")
-    #     return super().validate(attrs)
 
     def validate_inputs(self, value):
         if self.context:
