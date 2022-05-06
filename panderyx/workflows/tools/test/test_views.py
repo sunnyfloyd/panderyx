@@ -4,10 +4,11 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from panderyx.users.test.factories import UserFactory
+from panderyx.workflows.models import Workflow
+from panderyx.workflows.test.factories import WorkflowFactory
 from panderyx.workflows.tools.models import Tool
 from panderyx.workflows.tools.test.factories import ToolFactory
-from panderyx.users.test.factories import UserFactory
-from panderyx.workflows.test.factories import WorkflowFactory
 
 
 class TestToolListTestCase(APITestCase):
@@ -70,15 +71,20 @@ class TestToolListTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_post_with_read_only_data(self):
+    def test_post_with_type_only_config(self):
         url = reverse("workflow-tools-list", kwargs={"workflow_pk": self.workflow_1.id})
         self.client.force_login(self.user_1)
-        response = self.client.post(url, {"name": "test_tool"})
+        data = {
+            "config": {"type": "input_url"},
+            "name": "test_tool",
+            "type": "input_url",
+        }
+        response = self.client.post(url, data, format="json")
+        tool_id = response.data.get("id")
 
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.workflow_1.id, response.data.get("workflow"))
-        self.assertEqual(
-            self.workflow_1.tools.filter(name=response.data.get("name")).exists(), True
-        )
+        self.assertEqual(self.workflow_1.tools.filter(pk=tool_id).exists(), True)
 
     def test_post_request_as_unauthenticated_user(self):
         url = reverse("workflow-tools-list", kwargs={"workflow_pk": self.workflow_1.id})
@@ -87,6 +93,41 @@ class TestToolListTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(
             self.workflow_1.tools.filter(name=response.data.get("name")).exists(), False
+        )
+
+    def test_post_request_with_input_from_different_workflow(self):
+        url = reverse("workflow-tools-list", kwargs={"workflow_pk": self.workflow_1.id})
+        self.client.force_login(self.user_1)
+        data = {
+            "config": {"type": "input_url"},
+            "name": "test_tool",
+            "type": "input_url",
+            "inputs": [self.workflow_2.tools.first().id],
+        }
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn(
+            "Provided input tool is not a part of this workflow.",
+            response.data.get("inputs"),
+        )
+
+    def test_post_with_non_unique_workflow_and_tool_names(self):
+        url = reverse("workflow-tools-list", kwargs={"workflow_pk": self.workflow_1.id})
+        self.client.force_login(self.user_1)
+        data = {
+            "config": {"type": "input_url"},
+            "name": "test_tool",
+            "type": "input_url",
+        }
+
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn(
+            "Tool's name must be unique in the workflow.", response.data.get("workflow")
         )
 
 
@@ -154,7 +195,8 @@ class TestToolDetailTestCase(APITestCase):
             kwargs={"workflow_pk": self.workflow_1.id, "pk": self.tool_user_1.id},
         )
         self.client.force_login(self.user_1)
-        response = self.client.put(url, {"name": "test_tool"})
+        data = {"name": "test_tool", "config": {"type": "input_url"}}
+        response = self.client.put(url, data, format="json")
         self.tool_user_1.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -166,7 +208,8 @@ class TestToolDetailTestCase(APITestCase):
             kwargs={"workflow_pk": self.workflow_1.id, "pk": self.tool_user_1.id},
         )
         self.client.force_login(self.admin)
-        response = self.client.put(url, {"name": "test_tool"})
+        data = {"name": "test_tool", "config": {"type": "input_url"}}
+        response = self.client.put(url, data, format="json")
         self.tool_user_1.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

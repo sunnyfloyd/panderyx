@@ -6,9 +6,8 @@ from django.utils.translation import gettext_lazy as _
 
 from panderyx.workflows.models import Workflow
 
-
-class YearInSchool(models.TextChoices):
-    INPUT_URL = "input_url", _("URL Input")
+# class YearInSchool(models.TextChoices):
+#     INPUT_URL = "input_url", _("URL Input")
 
 
 class Tool(models.Model):
@@ -25,11 +24,12 @@ class Tool(models.Model):
     inputs = models.ManyToManyField(
         "self", symmetrical=False, related_name="outputs", blank=True
     )
-    type = models.CharField(max_length=30, choices=YearInSchool.choices)
-    config = models.JSONField(null=True)
+    # type = models.CharField(max_length=30, choices=YearInSchool.choices)
+    config = models.JSONField()
 
     class Meta:
         ordering = ["workflow", "name"]
+        unique_together = [["workflow", "name"]]
 
     def __str__(self) -> str:
         return f"{self.get_name()} in {self.workflow.name}"

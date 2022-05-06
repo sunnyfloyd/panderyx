@@ -9,8 +9,8 @@ class ToolFactory(factory.django.DjangoModelFactory):
         django_get_or_create = (
             "workflow",
             "name",
-            
         )
 
+    config = {"type": "input_url"}
     workflow = factory.SubFactory(WorkflowFactory)
     name = factory.Sequence(lambda n: f"tool{n}")

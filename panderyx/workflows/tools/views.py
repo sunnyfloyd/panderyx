@@ -1,6 +1,8 @@
+from django.db import IntegrityError
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 from panderyx.common.permissions import IsWorkflowOwnerOrAdmin
@@ -30,4 +32,9 @@ class ToolViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         workflow = get_object_or_404(Workflow, id=self.kwargs["workflow_pk"])
-        serializer.save(workflow=workflow)
+        try:
+            serializer.save(workflow=workflow)
+        except IntegrityError:  # FIXME move to serializer in the future
+            raise ValidationError(
+                {"workflow": ["Tool's name must be unique in the workflow."]}
+            )
