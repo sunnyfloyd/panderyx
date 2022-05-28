@@ -37,14 +37,14 @@ class Workflow(models.Model):
         Returns:
             List[Tool]: list of Tool objects that defines their execution order
         """
-        tool_set = set(self.tools.prefetch_related("inputs"))
-        starting_tools = list(self.tools.filter(inputs=None))
+        tool_qs = self.tools.prefetch_related("inputs")
+        starting_tools = list(tool_qs.filter(inputs=None))
 
         if not starting_tools:
             # TODO Create proper exception class
             raise ValueError("Workflow cannot be run without any input files.")
 
-        return self._find_next_tools(set(starting_tools), starting_tools, tool_set)
+        return self._find_next_tools(set(starting_tools), starting_tools, set(tool_qs))
 
     def _find_next_tools(
         self,
@@ -55,9 +55,9 @@ class Workflow(models.Model):
         """Recurrent function that returns a list of Tool objects in the order of their execution.
 
         Args:
-            previous_tools (Set[Tool]): tools from previous iteration to which connected tools are to be found
+            previous_tools (Set[Tool]): tools from previous iteration for which connected tools are to be found
             tool_order (List[Tool]): current status of tool execution order
-            tool_set (Set[Tool]): starting set of tools that includes all of the Tool objects of the current workflow
+            tool_set (Set[Tool]): starting set of tools that includes all of the Tool objects from the current workflow
 
         Returns:
             List[Tool]: final status of tool execution order
