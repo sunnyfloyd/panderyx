@@ -3,10 +3,8 @@ import dataclasses
 from rest_framework import exceptions, serializers
 
 from panderyx.workflows.models import Workflow
-from panderyx.workflows.tools.dtos.input_tools import InputUrl
-from panderyx.workflows.tools.helpers import ToolMapping
+from panderyx.workflows.tools.mappings import ToolMapping
 from panderyx.workflows.tools.models import Tool
-from panderyx.workflows.tools.serializers.input_tools import InputUrlSerializer
 
 
 class ConfigField(serializers.Field):
@@ -17,7 +15,14 @@ class ConfigField(serializers.Field):
         return config_serializer.data
 
     def to_internal_value(self, data):
-        dto = ToolMapping[data.get("type")].value["dto"]
+        try:
+            tool_mapping = ToolMapping[data.get("type")].value
+        except KeyError:
+            raise exceptions.ValidationError("Provided tool type does not exist.")
+
+        dto = tool_mapping["dto"]
+        max_number_of_inputs = tool_mapping["max_number_of_inputs"]
+        data["max_number_of_inputs"] = max_number_of_inputs
         config_dto = dto(**data)
         return dataclasses.asdict(config_dto)
 
@@ -48,7 +53,7 @@ class ToolSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = [
             "workflow",
-            "data",
+            "max_number_of_inputs",
         ]
 
     def validate_inputs(self, value):
@@ -62,3 +67,15 @@ class ToolSerializer(serializers.ModelSerializer):
                         "Provided input tool is not a part of this workflow."
                     )
         return value
+
+    def validate(self, data):
+        max_number_of_inputs = data["config"]["max_number_of_inputs"]
+        inputs = data.get("inputs")
+        if inputs is not None and len(inputs) > max_number_of_inputs:
+            raise exceptions.ValidationError(
+                {
+                    "config": f"Number of inputs for this tool cannot be larger than {max_number_of_inputs}"
+                }
+            )
+
+        return data
