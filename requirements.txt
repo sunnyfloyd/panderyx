@@ -32,6 +32,7 @@ django-nose==1.4.7
 nose-progressive==1.5.2
 coverage==6.2
 pytest-django==4.5.2
+pytest-cov==3.0.0
 
 # Static and Media Storage
 django-storages==1.12.3
