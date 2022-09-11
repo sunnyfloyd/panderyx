@@ -34,7 +34,7 @@ class ToolViewSet(viewsets.ModelViewSet):
         workflow = get_object_or_404(Workflow, id=self.kwargs["workflow_pk"])
         try:
             serializer.save(workflow=workflow)
-        except IntegrityError:  # FIXME move to serializer in the future
+        except IntegrityError:  # FIXME move to serializer in the future; probably remove unique tool name constraint
             raise ValidationError(
                 {"workflow": ["Tool's name must be unique in the workflow."]}
             )

@@ -11,7 +11,7 @@ class ConfigField(serializers.Field):
     def to_representation(self, value):
         serializer = ToolMapping[value["type"]].value["serializer"]
         config_serializer = serializer(data=value)
-        config_serializer.is_valid()
+        config_serializer.is_valid()  # FIXME shouldn't I call validated_data instead of data after this?
         return config_serializer.data
 
     def to_internal_value(self, data):
@@ -34,8 +34,9 @@ class ConfigField(serializers.Field):
 
         data = super().run_validation(data)
 
-        if data is None:
-            raise exceptions.ValidationError("Provided tool type is invalid.")
+        # TODO Check whether below is needed (data should never be none here)
+        # if data is None:
+        #     raise exceptions.ValidationError("Provided tool type is invalid.")
 
         tool_type = data.get("type")
         serializer = ToolMapping[tool_type].value["serializer"]

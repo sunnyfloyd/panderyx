@@ -14,7 +14,7 @@ class WorkflowService:
 
         for tool in execution_order:
             # TODO
-            # below can be replace with a single DB query using filtering
+            # below can be replaced with a single DB query using filtering
             # and then I can loop over the inputs
             input_ids = tool.inputs.values_list("id", flat=True)
             # In cases where input order matters it will be handled by proper config fields

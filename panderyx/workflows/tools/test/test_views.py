@@ -1,4 +1,5 @@
 import unittest
+from django.forms import model_to_dict
 
 from django.urls import reverse
 from rest_framework import status
@@ -62,6 +63,25 @@ class TestToolListTestCase(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_with_valid_data(self):
+        self.client.force_login(self.user_1)
+        url = reverse("workflow-tools-list", kwargs={"workflow_pk": self.workflow_1.id})
+        input_tool = ToolFactory(workflow=self.workflow_1)
+        data = model_to_dict(input_tool)
+        data.update(
+            {
+                "name": "test_tool",
+                "config": {"type": "describe_data"},
+                "inputs": [input_tool.id],
+            }
+        )
+        response = self.client.post(url, data, format="json")
+        tool_id = response.data.get("id")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.workflow_1.id, response.data.get("workflow"))
+        self.assertEqual(self.workflow_1.tools.filter(pk=tool_id).exists(), True)
 
     @unittest.skip("skip until automated naming is not implemented for tools")
     def test_post_with_no_data(self):
