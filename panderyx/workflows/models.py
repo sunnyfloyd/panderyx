@@ -62,7 +62,7 @@ class Workflow(models.Model):
         Returns:
             List[Tool]: final status of tool execution order
         """
-        # TODO Check for how many DB queries are fired for this function
+        # TODO Check how many DB queries are fired for this function
         tools = tool_set - previous_tools - set(tool_order)
         next_iteration_candidates = set(
             tool for tool in tools if set(tool.inputs.all()) & previous_tools

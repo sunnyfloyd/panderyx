@@ -1,4 +1,5 @@
-from datetime import datetime
+# from datetime import datetime
+
 from django.test import TestCase
 from django.forms.models import model_to_dict
 
@@ -12,8 +13,8 @@ class TestWorkflowSerializer(TestCase):
 
     def test_serializer_with_empty_data(self):
         serializer = WorkflowSerializer(data={})
-        assert serializer.is_valid() == False
+        assert serializer.is_valid() is False
 
     def test_serializer_with_valid_data(self):
         serializer = WorkflowSerializer(data=self.workflow_data)
-        assert serializer.is_valid() == True
+        assert serializer.is_valid() is True

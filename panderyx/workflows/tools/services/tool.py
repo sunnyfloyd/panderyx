@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Union
+from typing import Dict
 
 import pandas as pd
 
@@ -11,5 +11,5 @@ class ToolService(ABC):
         self.tool = tool
 
     @abstractmethod
-    def run_tool(self, inputs: Union[List[pd.DataFrame], None] = None) -> pd.DataFrame:
+    def run_tool(self, inputs: Dict[int, pd.DataFrame]) -> pd.DataFrame:
         """Returns a DataFrame after data manipulation specific for this tool has finished."""

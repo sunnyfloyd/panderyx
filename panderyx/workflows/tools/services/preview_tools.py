@@ -1,5 +1,5 @@
 import json
-from typing import List, Union
+from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -17,9 +17,10 @@ class DescribeDataService(ToolService):
         DataTypes.CATEGORY.value: ["category"],
     }
 
-    def run_tool(self, inputs: Union[List[pd.DataFrame], None] = None) -> pd.DataFrame:
+    def run_tool(self, inputs: Dict[int, pd.DataFrame]) -> pd.DataFrame:
         config = self.tool.config
         data_type = self.data_type_mapping[config["data_type"]]
+        # getting the only input DataFrame
         df = list(inputs.values())[0]
 
         return df.describe(include=data_type)
