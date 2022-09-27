@@ -14,8 +14,8 @@
                 // "runserver",
                 // "5001"
                 // "test",
-                // "panderyx.workflows.tools.test.test_models"
-                "--disable-warnings"
+                "--disable-warnings",
+                "panderyx/workflows/tools/test/test_preview_tool_service.py"
             ],
             "django": true,
             "justMyCode": false
