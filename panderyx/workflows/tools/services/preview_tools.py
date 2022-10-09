@@ -1,14 +1,22 @@
+from dataclasses import dataclass
 from typing import Dict
 
 import numpy as np
 import pandas as pd
 
 from panderyx.workflows.tools.helpers import DataTypes
-from panderyx.workflows.tools.services.tool import ToolService
+from panderyx.workflows.tools.services.tool import ToolService, ToolServiceException
+
+@dataclass
+class DescribeDataException(ToolServiceException):
+    message: str = (
+        "Describe Tool could not process provided data. "
+        "Please make sure that 'describe type' is suitable for your type of data."
+    )
+    code: str = "describe_error"
 
 
 class DescribeDataService(ToolService):
-
     data_type_mapping = {
         DataTypes.ALL.value: "all",
         DataTypes.NUMERIC.value: [np.number],
@@ -22,4 +30,7 @@ class DescribeDataService(ToolService):
         # getting the only input DataFrame
         df = list(inputs.values())[0]
 
-        return df.describe(include=data_type)
+        try:
+            return df.describe(include=data_type)
+        except ValueError:
+            raise DescribeDataException(tool_id=self.tool.id)

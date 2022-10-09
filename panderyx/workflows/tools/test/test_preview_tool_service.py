@@ -1,4 +1,5 @@
 from dataclasses import asdict
+import pytest
 from parameterized import parameterized
 import pandas as pd
 
@@ -9,7 +10,10 @@ from panderyx.workflows.test.factories import WorkflowFactory
 from panderyx.workflows.tools.helpers import DataTypes
 from panderyx.workflows.tools.test.factories import ToolFactory
 from panderyx.workflows.tools.dtos.preview_tools import DescribeData
-from panderyx.workflows.tools.services.preview_tools import DescribeDataService
+from panderyx.workflows.tools.services.preview_tools import (
+    DescribeDataException,
+    DescribeDataService,
+)
 from panderyx.test_helpers.data_sets import test_dataset
 
 
@@ -38,6 +42,9 @@ class TestInputUrlService(TestCase):
             service = DescribeDataService(tool)
 
             df = pd.read_csv(self.path)
-            assert df.describe(
-                include=DescribeDataService.data_type_mapping[data_type]
-            ).equals(service.run_tool({0: df}))
+            data_type = DescribeDataService.data_type_mapping[data_type]
+            if data_type != ["category"]:
+                assert df.describe(include=data_type).equals(service.run_tool({0: df}))
+            else:
+                with pytest.raises(DescribeDataException):
+                    service.run_tool({0: df})
