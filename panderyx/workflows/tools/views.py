@@ -30,11 +30,12 @@ class ToolViewSet(viewsets.ModelViewSet):
             Q(workflow=self.kwargs["workflow_pk"]) & Q(workflow__user=self.request.user)
         )
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["workflow"] = get_object_or_404(Workflow, id=self.kwargs["workflow_pk"])
+
+        return context
+
     def perform_create(self, serializer):
         workflow = get_object_or_404(Workflow, id=self.kwargs["workflow_pk"])
-        try:
-            serializer.save(workflow=workflow)
-        except IntegrityError:  # FIXME move to serializer in the future; probably remove unique tool name constraint
-            raise ValidationError(
-                {"workflow": ["Tool's name must be unique in the workflow."]}
-            )
+        serializer.save(workflow=workflow)

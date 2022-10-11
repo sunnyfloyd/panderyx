@@ -140,9 +140,7 @@ class TestToolListTestCase(APITestCase):
             "name": "test_tool",
             "type": "input_url",
         }
-
-        response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        ToolFactory(workflow=self.workflow_1, name="test_tool")
 
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
