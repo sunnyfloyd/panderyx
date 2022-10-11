@@ -34,7 +34,7 @@ class ConfigField(serializers.Field):
 
         data = super().run_validation(data)
 
-        # TODO Check whether below is needed (data should never be none here)
+        # TODO Check whether below is needed (data should never be None here)
         # if data is None:
         #     raise exceptions.ValidationError("Provided tool type is invalid.")
 
