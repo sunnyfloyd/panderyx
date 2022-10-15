@@ -9,7 +9,7 @@ from pyfakefs.fake_filesystem_unittest import Patcher
 from panderyx.workflows.test.factories import WorkflowFactory
 from panderyx.workflows.tools.helpers import DataTypes
 from panderyx.workflows.tools.test.factories import ToolFactory
-from panderyx.workflows.tools.dtos.preview_tools import DescribeData
+from panderyx.workflows.tools.dtos.preview_tools import DescribeDataConfig
 from panderyx.workflows.tools.services.preview_tools import (
     DescribeDataException,
     DescribeDataService,
@@ -26,7 +26,7 @@ class TestInputUrlService(TestCase):
     def test_preview_tool_with_default_data_type(self):
         with Patcher() as patcher:
             patcher.fs.create_file(self.path, contents=self.contents)
-            config = asdict(DescribeData(type="describe_data"))
+            config = asdict(DescribeDataConfig(type="describe_data"))
             tool = ToolFactory.build(config=config, workflow=self.workflow)
             service = DescribeDataService(tool)
 
@@ -37,7 +37,7 @@ class TestInputUrlService(TestCase):
     def test_preview_tool_with_different_data_types(self, data_type):
         with Patcher() as patcher:
             patcher.fs.create_file(self.path, contents=self.contents)
-            config = asdict(DescribeData(type="describe_data", data_type=data_type))
+            config = asdict(DescribeDataConfig(type="describe_data", data_type=data_type))
             tool = ToolFactory.build(config=config, workflow=self.workflow)
             service = DescribeDataService(tool)
 
