@@ -15,7 +15,7 @@
                 // "5001"
                 // "test",
                 "--disable-warnings",
-                "panderyx/workflows/tools/serializers/test/test_preview_tools.py"
+                "panderyx/workflows/test/test_views.py"
             ],
             "django": true,
             "justMyCode": false

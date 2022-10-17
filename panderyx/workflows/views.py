@@ -1,15 +1,15 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 from panderyx.common.permissions import IsWorkflowOwnerOrAdmin
+from panderyx.workflows.exceptions import WorkflowServiceException, ToolServiceException
 from panderyx.workflows.models import Workflow
 from panderyx.workflows.serializers import WorkflowSerializer
 from panderyx.workflows.services import WorkflowService
-from panderyx.workflows.tools.services.tool import ToolServiceException
 
 
 class WorkflowViewSet(viewsets.ModelViewSet):
@@ -39,7 +39,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
         try:
             workflow_service.run_workflow()
-        except ToolServiceException as exc:
+        except (WorkflowServiceException, ToolServiceException) as exc:
             raise APIException(detail=exc.detail, code=exc.code)
 
         data = workflow_service.get_outputs()

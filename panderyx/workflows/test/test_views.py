@@ -151,3 +151,31 @@ class TestWorkflowDetailTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertNotEqual("test_workflow", self.workflow_user_1.name)
+
+
+class TestRunWorkflowTestCase(APITestCase):
+    """
+    Tests run_workflow action endpoint.
+    """
+
+    def setUp(self) -> None:
+        self.user_1 = UserFactory()
+        self.user_2 = UserFactory()
+
+        self.workflow_user_1 = WorkflowFactory(user=self.user_1)
+
+    def test_run_on_empty_workflow(self):
+        url = reverse("workflow-run-workflow", kwargs={"pk": self.workflow_user_1.id})
+        self.client.force_login(self.user_1)
+        response = self.client.get(url)
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_run_on_workflow_without_input_tools(self):
+        ...
+
+    def test_run_on_valid_workflows(self):
+        ...
+
+    def test_run_without_permissions(self):
+        ...

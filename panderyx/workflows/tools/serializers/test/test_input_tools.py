@@ -26,5 +26,18 @@ class TestInputUrlConfigSerializer:
         # in ConfigField to_internal_value method
         assert serializer.validated_data.get("max_number_of_inputs") is None
 
-    def test_serializer_with_incorrect_url(self):
-        ...
+    @pytest.mark.parametrize(
+        "invalid_url",
+        [
+            "invalid url",
+            "not.full.url.com",
+            "www.mock.com",
+            "http:///www.mock.com",
+        ],
+    )
+    def test_serializer_with_incorrect_url(self, invalid_url):
+        data = self.valid_data.copy()
+        data["url"] = invalid_url
+        serializer = InputUrlConfigSerializer(data=data)
+
+        assert serializer.is_valid() is False

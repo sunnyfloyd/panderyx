@@ -6,14 +6,12 @@ import pandas as pd
 from django.test import TestCase
 from pyfakefs.fake_filesystem_unittest import Patcher
 
+from panderyx.workflows.exceptions import ToolServiceException
 from panderyx.workflows.test.factories import WorkflowFactory
 from panderyx.workflows.tools.helpers import DataTypes
 from panderyx.workflows.tools.test.factories import ToolFactory
 from panderyx.workflows.tools.dtos.preview_tools import DescribeDataConfig
-from panderyx.workflows.tools.services.preview_tools import (
-    DescribeDataException,
-    DescribeDataService,
-)
+from panderyx.workflows.tools.services.preview_tools import DescribeDataService
 from panderyx.test_helpers.data_sets import test_dataset
 
 
@@ -37,7 +35,9 @@ class TestInputUrlService(TestCase):
     def test_preview_tool_with_different_data_types(self, data_type):
         with Patcher() as patcher:
             patcher.fs.create_file(self.path, contents=self.contents)
-            config = asdict(DescribeDataConfig(type="describe_data", data_type=data_type))
+            config = asdict(
+                DescribeDataConfig(type="describe_data", data_type=data_type)
+            )
             tool = ToolFactory.build(config=config, workflow=self.workflow)
             service = DescribeDataService(tool)
 
@@ -46,5 +46,5 @@ class TestInputUrlService(TestCase):
             if data_type != ["category"]:
                 assert df.describe(include=data_type).equals(service.run_tool({0: df}))
             else:
-                with pytest.raises(DescribeDataException):
+                with pytest.raises(ToolServiceException):
                     service.run_tool({0: df})

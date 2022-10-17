@@ -41,7 +41,6 @@ class Workflow(models.Model):
         starting_tools = list(tool_qs.filter(inputs=None))
 
         if not starting_tools:
-            # TODO Create proper exception class
             raise ValueError("Workflow cannot be run without any input files.")
 
         return self._find_next_tools(set(starting_tools), starting_tools, set(tool_qs))
