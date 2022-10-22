@@ -3,7 +3,7 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
-from panderyx.workflows.exceptions import ToolServiceException
+from panderyx.workflows.exceptions import MissingToolInput, ToolServiceException
 from panderyx.workflows.tools.helpers import DataTypes
 from panderyx.workflows.tools.services.tool import ToolService
 
@@ -20,7 +20,10 @@ class DescribeDataService(ToolService):
         config = self.tool.config
         data_type = self.data_type_mapping[config["data_type"]]
         # getting the only input DataFrame
-        df = list(inputs.values())[0]
+        try:
+            df = list(inputs.values())[0]
+        except IndexError:
+            raise MissingToolInput(tool_id=self.tool.id)
 
         try:
             return df.describe(include=data_type)
@@ -31,5 +34,5 @@ class DescribeDataService(ToolService):
                     "Describe Tool could not process provided data. "
                     "Please make sure that 'describe type' is suitable for your type of data."
                 ),
-                code="describe_error"
+                code="describe_error",
             )

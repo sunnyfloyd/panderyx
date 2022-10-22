@@ -148,6 +148,9 @@ class TestToolListTestCase(APITestCase):
             "Tool's name must be unique in the workflow.", response.data.get("workflow")
         )
 
+    def test_post_with_valid_tool_to_other_user_workflow(self):
+        ...
+
 
 class TestToolDetailTestCase(APITestCase):
     """

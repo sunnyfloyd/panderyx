@@ -15,7 +15,7 @@
                 // "5001"
                 // "test",
                 "--disable-warnings",
-                "panderyx/workflows/test/test_views.py"
+                "panderyx/workflows/test/test_views.py::TestRunWorkflowTestCase::test_run_on_valid_workflow"
             ],
             "django": true,
             "justMyCode": false
