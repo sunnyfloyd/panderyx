@@ -24,7 +24,6 @@ class TestToolListTestCase(APITestCase):
 
         self.workflow_1 = WorkflowFactory(user=self.user_1)
         self.workflow_2 = WorkflowFactory(user=self.user_2)
-        # self.workflow_3 = WorkflowFactory.create_batch(8, user=self.admin)
 
         ToolFactory.create_batch(5, workflow=self.workflow_1)
         ToolFactory.create_batch(9, workflow=self.workflow_2)
@@ -149,7 +148,21 @@ class TestToolListTestCase(APITestCase):
         )
 
     def test_post_with_valid_tool_to_other_user_workflow(self):
-        ...
+        self.client.force_login(self.user_2)
+        url = reverse("workflow-tools-list", kwargs={"workflow_pk": self.workflow_1.id})
+        input_tool = ToolFactory(workflow=self.workflow_1)
+        data = model_to_dict(input_tool)
+        data.update(
+            {
+                "name": "test_tool",
+                "config": {"type": "describe_data"},
+                "inputs": [input_tool.id],
+            }
+        )
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.workflow_1.tools.count(), 6)
 
 
 class TestToolDetailTestCase(APITestCase):

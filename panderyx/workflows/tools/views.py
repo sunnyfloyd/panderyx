@@ -37,5 +37,7 @@ class ToolViewSet(viewsets.ModelViewSet):
         return context
 
     def perform_create(self, serializer):
-        workflow = get_object_or_404(Workflow, id=self.kwargs["workflow_pk"])
+        workflow = get_object_or_404(
+            Workflow, id=self.kwargs["workflow_pk"], user=self.request.user
+        )
         serializer.save(workflow=workflow)
