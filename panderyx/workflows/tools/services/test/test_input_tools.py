@@ -1,6 +1,7 @@
 from dataclasses import asdict
 import pandas as pd
 
+import pytest
 from django.test import TestCase
 from pyfakefs.fake_filesystem_unittest import Patcher
 
@@ -11,13 +12,15 @@ from panderyx.workflows.tools.services.input_tools import InputUrlService
 from panderyx.test_helpers.data_sets import test_dataset
 
 
-class TestInputUrlService(TestCase):
+@pytest.mark.django_db()
+class TestInputUrlService:
+    @pytest.fixture()
     def setUp(self):
         self.workflow = WorkflowFactory.build()
         self.path = "/foo/bar.txt"
         self.contents = test_dataset
 
-    def test_input_url(self):
+    def test_input_url(self, setUp):
         with Patcher() as patcher:
             patcher.fs.create_file(self.path, contents=self.contents)
             config = asdict(InputUrlConfig(type="input_url", url=self.path))

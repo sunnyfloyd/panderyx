@@ -3,8 +3,6 @@ from dataclasses import asdict
 import pytest
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
-from pyfakefs.fake_filesystem_unittest import Patcher
 
 from panderyx.users.test.factories import UserFactory
 from panderyx.workflows.models import Workflow
@@ -12,14 +10,15 @@ from panderyx.workflows.test.factories import WorkflowFactory
 from panderyx.workflows.tools.dtos.input_tools import InputUrlConfig
 from panderyx.workflows.tools.dtos.preview_tools import DescribeDataConfig
 from panderyx.workflows.tools.test.factories import ToolFactory
-from panderyx.test_helpers.data_sets import test_dataset
 
 
-class TestWorkflowListTestCase(APITestCase):
+@pytest.mark.django_db()
+class TestWorkflowListTestCase:
     """
     Tests /workflows list operations.
     """
 
+    @pytest.fixture()
     def setUp(self) -> None:
         self.url = reverse("workflow-list")
         self.user_1 = UserFactory()
@@ -30,71 +29,76 @@ class TestWorkflowListTestCase(APITestCase):
         WorkflowFactory.create_batch(5, user=self.user_2)
         WorkflowFactory.create_batch(8, user=self.admin)
 
-    def test_get_list_of_user_workflows(self):
-        self.client.force_login(self.user_1)
-        response = self.client.get(self.url)
+    def test_get_list_of_user_workflows(self, setUp, apiclient):
+        apiclient.force_authenticate(self.user_1)
+        response = apiclient.get(self.url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), self.user_1.workflows.count())
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == self.user_1.workflows.count()
 
-        self.client.force_login(self.user_2)
-        response = self.client.get(self.url)
+        apiclient.force_authenticate(self.user_2)
+        response = apiclient.get(self.url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), self.user_2.workflows.count())
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == self.user_2.workflows.count()
 
-    def test_get_list_of_users_workflows_as_admin(self):
-        self.client.force_login(self.admin)
-        response = self.client.get(self.url)
+    def test_get_list_of_users_workflows_as_admin(self, setUp, apiclient):
+        apiclient.force_authenticate(self.admin)
+        response = apiclient.get(self.url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), Workflow.objects.count())
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == Workflow.objects.count()
 
-    def test_get_list_of_user_workflows_as_unauthenticated_user(self):
-        response = self.client.get(self.url)
+    def test_get_list_of_user_workflows_as_unauthenticated_user(self, setUp, apiclient):
+        response = apiclient.get(self.url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_post_with_no_data(self):
-        self.client.force_login(self.user_1)
-        response = self.client.post(self.url, {})
+    def test_post_with_no_data(self, setUp, apiclient):
+        apiclient.force_authenticate(self.user_1)
+        response = apiclient.post(self.url, {})
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_post_with_read_only_data(self):
-        self.client.force_login(self.user_1)
-        response = self.client.post(
+    def test_post_with_read_only_data(self, setUp, apiclient):
+        apiclient.force_authenticate(self.user_1)
+        response = apiclient.post(
             self.url, {"name": "test_workflow", "user": self.user_2.id}
         )
 
-        self.assertEqual(self.user_1.id, response.data.get("user"))
-        self.assertEqual(
-            self.user_1.workflows.filter(name=response.data.get("name")).exists(), True
+        assert self.user_1.id == response.data.get("user")
+        assert (
+            self.user_1.workflows.filter(name=response.data.get("name")).exists()
+            is True
         )
 
-    def test_post_with_valid_data(self):
-        self.client.force_login(self.user_1)
-        response = self.client.post(self.url, {"name": "test_workflow"})
+    def test_post_with_valid_data(self, setUp, apiclient):
+        apiclient.force_authenticate(self.user_1)
+        response = apiclient.post(self.url, {"name": "test_workflow"})
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(
-            self.user_1.workflows.filter(name=response.data.get("name")).exists(), True
+        assert response.status_code == status.HTTP_201_CREATED
+        assert (
+            self.user_1.workflows.filter(name=response.data.get("name")).exists()
+            is True
         )
 
-    def test_post_request_as_unauthenticated_user(self):
-        response = self.client.post(self.url, {"name": "test_workflow"})
+    def test_post_request_as_unauthenticated_user(self, setUp, apiclient):
+        response = apiclient.post(self.url, {"name": "test_workflow"})
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual(
-            self.user_1.workflows.filter(name=response.data.get("name")).exists(), False
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            self.user_1.workflows.filter(name=response.data.get("name")).exists()
+            is False
         )
 
 
-class TestWorkflowDetailTestCase(APITestCase):
+@pytest.mark.django_db()
+class TestWorkflowDetailTestCase:
     """
     Tests /workflows detail operations.
     """
 
+    @pytest.fixture()
     def setUp(self) -> None:
         self.user_1 = UserFactory()
         self.user_2 = UserFactory()
@@ -103,62 +107,62 @@ class TestWorkflowDetailTestCase(APITestCase):
         self.workflow_user_1 = WorkflowFactory(user=self.user_1)
         self.workflow_user_2 = WorkflowFactory(user=self.user_2)
 
-    def test_get_non_existing_workflow(self):
+    def test_get_non_existing_workflow(self, setUp, apiclient):
         url = reverse("workflow-detail", kwargs={"pk": "no-such-id"})
-        self.client.force_login(self.user_1)
-        response = self.client.get(url)
+        apiclient.force_authenticate(self.user_1)
+        response = apiclient.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_get_existing_workflow_as_owner(self):
+    def test_get_existing_workflow_as_owner(self, setUp, apiclient):
         url = reverse("workflow-detail", kwargs={"pk": self.workflow_user_1.id})
-        self.client.force_login(self.user_1)
-        response = self.client.get(url)
+        apiclient.force_authenticate(self.user_1)
+        response = apiclient.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get("name"), self.workflow_user_1.name)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data.get("name") == self.workflow_user_1.name
 
-    def test_get_existing_workflow_as_admin(self):
+    def test_get_existing_workflow_as_admin(self, setUp, apiclient):
         url = reverse("workflow-detail", kwargs={"pk": self.workflow_user_1.id})
-        self.client.force_login(self.admin)
-        response = self.client.get(url)
+        apiclient.force_authenticate(self.admin)
+        response = apiclient.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get("name"), self.workflow_user_1.name)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data.get("name") == self.workflow_user_1.name
 
-    def test_get_existing_workflow_as_other_user(self):
+    def test_get_existing_workflow_as_other_user(self, setUp, apiclient):
         url = reverse("workflow-detail", kwargs={"pk": self.workflow_user_1.id})
-        self.client.force_login(self.user_2)
-        response = self.client.get(url)
+        apiclient.force_authenticate(self.user_2)
+        response = apiclient.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_update_existing_workflow_as_owner(self):
+    def test_update_existing_workflow_as_owner(self, setUp, apiclient):
         url = reverse("workflow-detail", kwargs={"pk": self.workflow_user_1.id})
-        self.client.force_login(self.user_1)
-        response = self.client.put(url, {"name": "test_workflow"})
+        apiclient.force_authenticate(self.user_1)
+        response = apiclient.put(url, {"name": "test_workflow"})
         self.workflow_user_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get("name"), self.workflow_user_1.name)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data.get("name") == self.workflow_user_1.name
 
-    def test_update_existing_workflow_as_admin(self):
+    def test_update_existing_workflow_as_admin(self, setUp, apiclient):
         url = reverse("workflow-detail", kwargs={"pk": self.workflow_user_1.id})
-        self.client.force_login(self.admin)
-        response = self.client.put(url, {"name": "test_workflow"})
+        apiclient.force_authenticate(self.admin)
+        response = apiclient.put(url, {"name": "test_workflow"})
         self.workflow_user_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get("name"), self.workflow_user_1.name)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data.get("name") == self.workflow_user_1.name
 
-    def test_update_existing_workflow_as_other_user(self):
+    def test_update_existing_workflow_as_other_user(self, setUp, apiclient):
         url = reverse("workflow-detail", kwargs={"pk": self.workflow_user_1.id})
-        self.client.force_login(self.user_2)
-        response = self.client.put(url, {"name": "test_workflow"})
+        apiclient.force_authenticate(self.user_2)
+        response = apiclient.put(url, {"name": "test_workflow"})
         self.workflow_user_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertNotEqual("test_workflow", self.workflow_user_1.name)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert "test_workflow" != self.workflow_user_1.name
 
 
 @pytest.mark.django_db()

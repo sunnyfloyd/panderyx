@@ -37,6 +37,8 @@ class ToolViewSet(viewsets.ModelViewSet):
         return context
 
     def perform_create(self, serializer):
+        # TODO I should add permisison check here to enable collaboration
+        # in the single workflow
         workflow = get_object_or_404(
             Workflow, id=self.kwargs["workflow_pk"], user=self.request.user
         )
