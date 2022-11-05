@@ -30,11 +30,16 @@ class ToolViewSet(viewsets.ModelViewSet):
             Q(workflow=self.kwargs["workflow_pk"]) & Q(workflow__user=self.request.user)
         )
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["workflow"] = get_object_or_404(Workflow, id=self.kwargs["workflow_pk"])
+
+        return context
+
     def perform_create(self, serializer):
-        workflow = get_object_or_404(Workflow, id=self.kwargs["workflow_pk"])
-        try:
-            serializer.save(workflow=workflow)
-        except IntegrityError:  # FIXME move to serializer in the future
-            raise ValidationError(
-                {"workflow": ["Tool's name must be unique in the workflow."]}
-            )
+        # TODO I should add permisison check here to enable collaboration
+        # in the single workflow
+        workflow = get_object_or_404(
+            Workflow, id=self.kwargs["workflow_pk"], user=self.request.user
+        )
+        serializer.save(workflow=workflow)

@@ -8,10 +8,14 @@
             "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
+            // "program": "${workspaceFolder}/manage.py",
+            "module": "pytest",
             "args": [
-                "runserver",
-                "5001"
+                // "runserver",
+                // "5001"
+                // "test",
+                "--disable-warnings",
+                "panderyx/workflows/test/test_views.py::TestRunWorkflowTestCase::test_run_on_valid_workflow"
             ],
             "django": true,
             "justMyCode": false

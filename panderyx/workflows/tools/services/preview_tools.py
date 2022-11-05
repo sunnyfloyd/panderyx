@@ -1,15 +1,14 @@
-import json
-from typing import List, Union
+from typing import Dict
 
 import numpy as np
 import pandas as pd
 
+from panderyx.workflows.exceptions import MissingToolInput, ToolServiceException
 from panderyx.workflows.tools.helpers import DataTypes
 from panderyx.workflows.tools.services.tool import ToolService
 
 
 class DescribeDataService(ToolService):
-
     data_type_mapping = {
         DataTypes.ALL.value: "all",
         DataTypes.NUMERIC.value: [np.number],
@@ -17,9 +16,23 @@ class DescribeDataService(ToolService):
         DataTypes.CATEGORY.value: ["category"],
     }
 
-    def run_tool(self, inputs: Union[List[pd.DataFrame], None] = None) -> pd.DataFrame:
+    def run_tool(self, inputs: Dict[int, pd.DataFrame]) -> pd.DataFrame:
         config = self.tool.config
         data_type = self.data_type_mapping[config["data_type"]]
-        df = list(inputs.values())[0]
+        # getting the only input DataFrame
+        try:
+            df = list(inputs.values())[0]
+        except IndexError:
+            raise MissingToolInput(tool_id=self.tool.id)
 
-        return df.describe(include=data_type)
+        try:
+            return df.describe(include=data_type)
+        except ValueError:
+            raise ToolServiceException(
+                tool_id=self.tool.id,
+                message=(
+                    "Describe Tool could not process provided data. "
+                    "Please make sure that 'describe type' is suitable for your type of data."
+                ),
+                code="describe_error",
+            )

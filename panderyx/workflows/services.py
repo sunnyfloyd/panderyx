@@ -1,4 +1,5 @@
-from typing import Dict, List
+import typing
+from panderyx.workflows.exceptions import WorkflowServiceException
 
 from panderyx.workflows.models import Workflow
 from panderyx.workflows.tools.mappings import ToolMapping
@@ -10,11 +11,18 @@ class WorkflowService:
         self.tool_result_dfs = {}
 
     def run_workflow(self) -> None:
-        execution_order = self.workflow.tool_execution_order
+        try:
+            execution_order = self.workflow.tool_execution_order
+        except ValueError:
+            raise WorkflowServiceException(
+                workflow_id=self.workflow.id,
+                message="Workflow cannot be run without any input files.",
+                code="workflow_no_inputs",
+            )
 
         for tool in execution_order:
             # TODO
-            # below can be replace with a single DB query using filtering
+            # below can be replaced with a single DB query using filtering
             # and then I can loop over the inputs
             input_ids = tool.inputs.values_list("id", flat=True)
             # In cases where input order matters it will be handled by proper config fields
@@ -27,7 +35,7 @@ class WorkflowService:
             tool_service = tool_service_class(tool=tool)
             self.tool_result_dfs[tool.id] = tool_service.run_tool(inputs=input_dfs)
 
-    def get_outputs(self) -> List[Dict]:
+    def get_outputs(self) -> typing.List[typing.Dict]:
         json_output = [
             {"tool_id": tool_id, "data": tool.to_json()}
             for tool_id, tool in self.tool_result_dfs.items()

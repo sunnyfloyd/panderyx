@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -32,9 +31,8 @@ class WorkflowViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def run_workflow(self, request, pk=None):
-        workflow = get_object_or_404(Workflow, pk=pk)
+        workflow = self.get_object()
         workflow_service = WorkflowService(workflow)
-
         workflow_service.run_workflow()
         data = workflow_service.get_outputs()
 
